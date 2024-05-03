@@ -68,15 +68,25 @@ class _PageAutoState extends State<PageAuto> {
               children: [
                 Row(
                   children: [
-                    PannelHMDS(),
-                    PannelSpin(),
-                    PannelExpos(),
+                    PannelHMDS(
+                      isVisible: false,
+                    ),
+                    PannelSpin(
+                      isVisible: false,
+                    ),
+                    PannelExpos(
+                      isVisible: false,
+                    ),
                   ],
                 ),
                 Row(
                   children: [
-                    PannelDevel(),
-                    PannelBake(),
+                    PannelDevel(
+                      isVisible: false,
+                    ),
+                    PannelBake(
+                      isVisible: false,
+                    ),
                   ],
                 ),
               ],

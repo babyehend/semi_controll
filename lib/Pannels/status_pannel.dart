@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +36,12 @@ class PannelBody extends StatelessWidget {
 }
 
 class PannelHMDS extends StatefulWidget {
-  const PannelHMDS({super.key});
+  const PannelHMDS({
+    super.key,
+    required this.isVisible,
+  });
+
+  final bool isVisible;
 
   @override
   State<PannelHMDS> createState() => _PannelHMDSState();
@@ -72,36 +76,51 @@ class _PannelHMDSState extends State<PannelHMDS> {
   Widget build(BuildContext context) {
     return PannelBody(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text("HMDS"),
+          statusHead(
+            header: parameter().sect1,
+          ),
           Flexible(
             flex: 1,
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    doorState = parameter().stateShifter(
-                      doorState,
-                      parameter().sect1,
-                      parameter().door,
-                    );
-                    setState(() {});
-                  },
-                  child: Text(parameter().door),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    vibState = parameter().stateShifter(
-                      vibState,
-                      parameter().sect1,
-                      parameter().dev1,
-                    );
-                    // 가져온 데이터에서 필요한 값을 추출하여 상태 업데이트
-                    setState(() {});
-                  },
-                  child: Text("Oxygen"),
-                ),
-              ],
+            child: Visibility(
+              visible: widget.isVisible,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      doorState = parameter().stateShifter(
+                        doorState,
+                        parameter().sect1,
+                        parameter().door,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      'Door',
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      vibState = parameter().stateShifter(
+                        vibState,
+                        parameter().sect1,
+                        parameter().dev1,
+                      );
+                      // 가져온 데이터에서 필요한 값을 추출하여 상태 업데이트
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Oxygen",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                ],
+              ),
             ),
           ),
           Flexible(
@@ -110,11 +129,17 @@ class _PannelHMDSState extends State<PannelHMDS> {
               children: [
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Door State : $doorState"),
+                  child: Text(
+                    "Door State : $doorState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Humid State : $vibState"),
+                  child: Text(
+                    "Humid State : $vibState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
               ],
             ),
@@ -125,8 +150,32 @@ class _PannelHMDSState extends State<PannelHMDS> {
   }
 }
 
+class statusHead extends StatelessWidget {
+  const statusHead({
+    required this.header,
+    super.key,
+  });
+
+  final String header;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      header,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+}
+
 class PannelSpin extends StatefulWidget {
-  const PannelSpin({super.key});
+  const PannelSpin({
+    super.key,
+    required this.isVisible,
+  });
+
+  final bool isVisible;
 
   @override
   State<PannelSpin> createState() => _PannelSpinState();
@@ -161,35 +210,50 @@ class _PannelSpinState extends State<PannelSpin> {
   Widget build(BuildContext context) {
     return PannelBody(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text("Spin Coating"),
+          statusHead(
+            header: parameter().sect2,
+          ),
           Flexible(
             flex: 1,
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    doorState = parameter().stateShifter(
-                      doorState,
-                      parameter().sect2,
-                      parameter().door,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Door"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    motorState = parameter().stateShifter(
-                      motorState,
-                      parameter().sect2,
-                      parameter().dev1,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Coating"),
-                ),
-              ],
+            child: Visibility(
+              visible: widget.isVisible,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      doorState = parameter().stateShifter(
+                        doorState,
+                        parameter().sect2,
+                        parameter().door,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Door",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      motorState = parameter().stateShifter(
+                        motorState,
+                        parameter().sect2,
+                        parameter().dev1,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Coating",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                ],
+              ),
             ),
           ),
           Flexible(
@@ -198,11 +262,17 @@ class _PannelSpinState extends State<PannelSpin> {
               children: [
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Door State : $doorState"),
+                  child: Text(
+                    "Door State : $doorState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Coating State : $motorState"),
+                  child: Text(
+                    "Coating State : $motorState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
               ],
             ),
@@ -214,14 +284,18 @@ class _PannelSpinState extends State<PannelSpin> {
 }
 
 class PannelBake extends StatefulWidget {
-  const PannelBake({super.key});
+  const PannelBake({
+    super.key,
+    required this.isVisible,
+  });
+
+  final bool isVisible;
 
   @override
   State<PannelBake> createState() => _PannelBakeState();
 }
 
 class _PannelBakeState extends State<PannelBake> {
-  Timer? _timer = null;
   String doorState = '';
   String temp = '';
   final _valueList = ['SOFT', 'HARD', 'POSTEX'];
@@ -231,9 +305,9 @@ class _PannelBakeState extends State<PannelBake> {
   void initState() {
     super.initState();
     fetchData(parameter().sect3);
-    _timer = Timer.periodic(Duration(microseconds: 500), (timer) {
-      fetchTemp(parameter().sect3);
-    });
+    // Timer.periodic(Duration(seconds: 2), (timer) {
+    //   fetchTemp(parameter().sect3);
+    // });
   }
 
   Future<void> fetchData(
@@ -267,45 +341,76 @@ class _PannelBakeState extends State<PannelBake> {
   Widget build(BuildContext context) {
     return PannelBody(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text("Bake"),
+          statusHead(
+            header: parameter().sect3,
+          ),
           Flexible(
             flex: 1,
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    doorState = parameter().stateShifter(
-                      doorState,
-                      parameter().sect3,
-                      parameter().door,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Door"),
-                ),
-                DropdownButton(
-                  value: _selectedValue,
-                  items: _valueList.map(
-                    (value) {
-                      return DropdownMenuItem(
-                        value: value,
-                        child: Text(value),
-                      );
-                    },
-                  ).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedValue = value.toString();
-                      parameter().stateShifter(
-                        _selectedValue,
+            child: Visibility(
+              visible: widget.isVisible,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      doorState = parameter().stateShifter(
+                        doorState,
                         parameter().sect3,
-                        parameter().dev1,
+                        parameter().door,
                       );
-                    });
-                  },
-                ),
-              ],
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Door",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  Container(
+                    height: 40,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: parameter().bgClr,
+                    ),
+                    child: DropdownButton(
+                      iconEnabledColor: parameter().textClr,
+                      underline: Container(),
+                      style: TextStyle(
+                        color: parameter().textClr,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      focusColor: parameter().bgClr,
+                      dropdownColor: parameter().bgClr,
+                      value: _selectedValue,
+                      items: _valueList.map(
+                        (value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(value),
+                          );
+                        },
+                      ).toList(),
+                      onChanged: (value) {
+                        setState(
+                          () {
+                            _selectedValue = value.toString();
+                            parameter().stateShifter(
+                              _selectedValue,
+                              parameter().sect3,
+                              parameter().dev1,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Flexible(
@@ -314,11 +419,17 @@ class _PannelBakeState extends State<PannelBake> {
               children: [
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Door State : $doorState"),
+                  child: Text(
+                    "Door State : $doorState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Temperature : $temp"),
+                  child: Text(
+                    "Temperature : $temp",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
               ],
             ),
@@ -330,7 +441,12 @@ class _PannelBakeState extends State<PannelBake> {
 }
 
 class PannelDevel extends StatefulWidget {
-  const PannelDevel({super.key});
+  const PannelDevel({
+    super.key,
+    required this.isVisible,
+  });
+
+  final bool isVisible;
 
   @override
   State<PannelDevel> createState() => _PannelDevelState();
@@ -369,57 +485,80 @@ class _PannelDevelState extends State<PannelDevel> {
   Widget build(BuildContext context) {
     return PannelBody(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text("Develop"),
+          statusHead(
+            header: parameter().sect4,
+          ),
           Flexible(
             flex: 1,
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    doorState = parameter().stateShifter(
-                      doorState,
-                      parameter().sect4,
-                      parameter().door,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Door"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    motorState1 = parameter().stateShifter(
-                      motorState1,
-                      parameter().sect4,
-                      parameter().dev1,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("FAN"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    motorState2 = parameter().stateShifter(
-                      motorState2,
-                      parameter().sect4,
-                      parameter().dev2,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Liquid 1"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    motorState3 = parameter().stateShifter(
-                      motorState3,
-                      parameter().sect4,
-                      parameter().dev3,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Liquid 2"),
-                ),
-              ],
+            child: Visibility(
+              visible: widget.isVisible,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      doorState = parameter().stateShifter(
+                        doorState,
+                        parameter().sect4,
+                        parameter().door,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Door",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      motorState1 = parameter().stateShifter(
+                        motorState1,
+                        parameter().sect4,
+                        parameter().dev1,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "FAN",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      motorState2 = parameter().stateShifter(
+                        motorState2,
+                        parameter().sect4,
+                        parameter().dev2,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Liquid 1",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      motorState3 = parameter().stateShifter(
+                        motorState3,
+                        parameter().sect4,
+                        parameter().dev3,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Liquid 2",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                ],
+              ),
             ),
           ),
           Flexible(
@@ -432,14 +571,20 @@ class _PannelDevelState extends State<PannelDevel> {
                       flex: 1,
                       child: Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Door State : $doorState"),
+                        child: Text(
+                          "Door State : $doorState",
+                          style: parameter().stateTextStyle,
+                        ),
                       ),
                     ),
                     Flexible(
                       flex: 1,
                       child: Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Fan State : $motorState1"),
+                        child: Text(
+                          "Fan State : $motorState1",
+                          style: parameter().stateTextStyle,
+                        ),
                       ),
                     ),
                   ],
@@ -450,14 +595,20 @@ class _PannelDevelState extends State<PannelDevel> {
                       flex: 1,
                       child: Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Liquid 1 State : $motorState2"),
+                        child: Text(
+                          "Liquid 1 State : $motorState2",
+                          style: parameter().stateTextStyle,
+                        ),
                       ),
                     ),
                     Flexible(
                       flex: 1,
                       child: Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Liquid 2 State : $motorState3"),
+                        child: Text(
+                          "Liquid 2 State : $motorState3",
+                          style: parameter().stateTextStyle,
+                        ),
                       ),
                     ),
                   ],
@@ -472,7 +623,12 @@ class _PannelDevelState extends State<PannelDevel> {
 }
 
 class PannelExpos extends StatefulWidget {
-  const PannelExpos({super.key});
+  const PannelExpos({
+    super.key,
+    required this.isVisible,
+  });
+
+  final bool isVisible;
 
   @override
   State<PannelExpos> createState() => _PannelExposState();
@@ -485,7 +641,7 @@ class _PannelExposState extends State<PannelExpos> {
   @override
   void initState() {
     super.initState();
-    fetchData(parameter().sect3);
+    fetchData(parameter().sect5);
   }
 
   Future<void> fetchData(
@@ -507,35 +663,50 @@ class _PannelExposState extends State<PannelExpos> {
   Widget build(BuildContext context) {
     return PannelBody(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text("Exposure"),
+          statusHead(
+            header: parameter().sect5,
+          ),
           Flexible(
             flex: 1,
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    doorState = parameter().stateShifter(
-                      doorState,
-                      parameter().sect5,
-                      parameter().door,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Door"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    ledState = parameter().stateShifter(
-                      ledState,
-                      parameter().sect5,
-                      parameter().dev1,
-                    );
-                    setState(() {});
-                  },
-                  child: Text("Light"),
-                ),
-              ],
+            child: Visibility(
+              visible: widget.isVisible,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      doorState = parameter().stateShifter(
+                        doorState,
+                        parameter().sect5,
+                        parameter().door,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Door",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      ledState = parameter().stateShifter(
+                        ledState,
+                        parameter().sect5,
+                        parameter().dev1,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Light",
+                      style: parameter().ctrlTextStyle,
+                    ),
+                    style: parameter().ctrlBTNstyle,
+                  ),
+                ],
+              ),
             ),
           ),
           Flexible(
@@ -544,11 +715,17 @@ class _PannelExposState extends State<PannelExpos> {
               children: [
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Door State : $doorState"),
+                  child: Text(
+                    "Door State : $doorState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("Light State : $ledState"),
+                  child: Text(
+                    "Light State : $ledState",
+                    style: parameter().stateTextStyle,
+                  ),
                 ),
               ],
             ),

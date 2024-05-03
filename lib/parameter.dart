@@ -100,4 +100,20 @@ class parameter with ChangeNotifier {
       });
     }
   }
+
+  final ButtonStyle ctrlBTNstyle = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xff345da7),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  );
+
+  final TextStyle ctrlTextStyle = TextStyle(
+    fontSize: 18,
+    color: Colors.white70,
+  );
+
+  final TextStyle stateTextStyle = TextStyle(
+    fontSize: 18,
+  );
 }

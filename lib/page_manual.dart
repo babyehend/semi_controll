@@ -40,15 +40,25 @@ class _PageManualState extends State<PageManual> {
               children: [
                 Row(
                   children: [
-                    PannelHMDS(),
-                    PannelSpin(),
-                    PannelExpos(),
+                    PannelHMDS(
+                      isVisible: true,
+                    ),
+                    PannelSpin(
+                      isVisible: true,
+                    ),
+                    PannelExpos(
+                      isVisible: true,
+                    ),
                   ],
                 ),
                 Row(
                   children: [
-                    PannelDevel(),
-                    PannelBake(),
+                    PannelDevel(
+                      isVisible: true,
+                    ),
+                    PannelBake(
+                      isVisible: true,
+                    ),
                   ],
                 ),
               ],

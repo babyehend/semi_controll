@@ -17,7 +17,7 @@ state_spin = {
 state_bake = {
     'DOOR' : 'CLOSE',
     'DEV1' : 'SOFT',
-    'TEMP' : '0', #HEAT PAD
+    'TEMP' : '50', #HEAT PAD
 }
 
 state_dev = {
