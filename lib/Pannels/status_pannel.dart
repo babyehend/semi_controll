@@ -35,6 +35,78 @@ class PannelBody extends StatelessWidget {
   }
 }
 
+class statusHead extends StatelessWidget {
+  const statusHead({
+    required this.header,
+    super.key,
+  });
+
+  final String header;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      header,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+}
+
+class PannelBTN extends StatefulWidget {
+  const PannelBTN({
+    super.key,
+    required this.inState,
+    required this.sector,
+    required this.device,
+    required this.label,
+    required this.setDevState,
+  });
+
+  final String inState;
+  final String sector;
+  final String device;
+  final String label;
+  final setDevState;
+
+  @override
+  State<PannelBTN> createState() => _PannelBTNState();
+}
+
+class _PannelBTNState extends State<PannelBTN> {
+  bool btnEnable = true;
+
+  @override
+  Widget build(BuildContext context) {
+    String outState = widget.inState;
+    return ElevatedButton(
+      onPressed: btnEnable
+          ? () {
+              outState = parameter().stateShifter(
+                outState,
+                widget.sector,
+                widget.device,
+              );
+              widget.setDevState(outState);
+              setState(() {
+                btnEnable = false;
+              });
+              Timer(Duration(seconds: 3), () async {
+                btnEnable = await true;
+                setState(() {});
+              });
+            }
+          : null,
+      child: Text(
+        widget.label,
+        style: parameter().ctrlTextStyle,
+      ),
+      style: parameter().ctrlBTNstyle,
+    );
+  }
+}
+
 class PannelHMDS extends StatefulWidget {
   const PannelHMDS({
     super.key,
@@ -55,6 +127,16 @@ class _PannelHMDSState extends State<PannelHMDS> {
   void initState() {
     super.initState();
     fetchData(parameter().sect1);
+  }
+
+  void setDoorState(String index) {
+    doorState = index;
+    setState(() {});
+  }
+
+  void setDev1State(String index) {
+    vibState = index;
+    setState(() {});
   }
 
   Future<void> fetchData(
@@ -88,36 +170,19 @@ class _PannelHMDSState extends State<PannelHMDS> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      doorState = parameter().stateShifter(
-                        doorState,
-                        parameter().sect1,
-                        parameter().door,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      'Door',
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: doorState,
+                    sector: parameter().sect1,
+                    device: parameter().door,
+                    label: 'Door',
+                    setDevState: setDoorState,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      vibState = parameter().stateShifter(
-                        vibState,
-                        parameter().sect1,
-                        parameter().dev1,
-                      );
-                      // 가져온 데이터에서 필요한 값을 추출하여 상태 업데이트
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Oxygen",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: vibState,
+                    sector: parameter().sect1,
+                    device: parameter().dev1,
+                    label: 'Oxyzen',
+                    setDevState: setDev1State,
                   ),
                 ],
               ),
@@ -150,25 +215,6 @@ class _PannelHMDSState extends State<PannelHMDS> {
   }
 }
 
-class statusHead extends StatelessWidget {
-  const statusHead({
-    required this.header,
-    super.key,
-  });
-
-  final String header;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      header,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-}
-
 class PannelSpin extends StatefulWidget {
   const PannelSpin({
     super.key,
@@ -189,6 +235,16 @@ class _PannelSpinState extends State<PannelSpin> {
   void initState() {
     super.initState();
     fetchData(parameter().sect2);
+  }
+
+  void setDoorState(String index) {
+    doorState = index;
+    setState(() {});
+  }
+
+  void setDev1State(String index) {
+    motorState = index;
+    setState(() {});
   }
 
   Future<void> fetchData(
@@ -222,35 +278,19 @@ class _PannelSpinState extends State<PannelSpin> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      doorState = parameter().stateShifter(
-                        doorState,
-                        parameter().sect2,
-                        parameter().door,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Door",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: doorState,
+                    sector: parameter().sect2,
+                    device: parameter().door,
+                    label: 'Door',
+                    setDevState: setDoorState,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      motorState = parameter().stateShifter(
-                        motorState,
-                        parameter().sect2,
-                        parameter().dev1,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Coating",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: motorState,
+                    sector: parameter().sect2,
+                    device: parameter().dev1,
+                    label: 'Coating',
+                    setDevState: setDev1State,
                   ),
                 ],
               ),
@@ -305,9 +345,14 @@ class _PannelBakeState extends State<PannelBake> {
   void initState() {
     super.initState();
     fetchData(parameter().sect3);
-    // Timer.periodic(Duration(seconds: 2), (timer) {
-    //   fetchTemp(parameter().sect3);
-    // });
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      await fetchTemp(parameter().sect3);
+    });
+  }
+
+  void setDoorState(String index) {
+    doorState = index;
+    setState(() {});
   }
 
   Future<void> fetchData(
@@ -353,20 +398,12 @@ class _PannelBakeState extends State<PannelBake> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      doorState = parameter().stateShifter(
-                        doorState,
-                        parameter().sect3,
-                        parameter().door,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Door",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: doorState,
+                    sector: parameter().sect3,
+                    device: parameter().door,
+                    label: 'Door',
+                    setDevState: setDoorState,
                   ),
                   Container(
                     height: 40,
@@ -464,6 +501,26 @@ class _PannelDevelState extends State<PannelDevel> {
     fetchData(parameter().sect4);
   }
 
+  void setDoorState(String index) {
+    doorState = index;
+    setState(() {});
+  }
+
+  void setDev1State(String index) {
+    motorState1 = index;
+    setState(() {});
+  }
+
+  void setDev2State(String index) {
+    motorState2 = index;
+    setState(() {});
+  }
+
+  void setDev3State(String index) {
+    motorState3 = index;
+    setState(() {});
+  }
+
   Future<void> fetchData(
     String section,
   ) async {
@@ -497,65 +554,33 @@ class _PannelDevelState extends State<PannelDevel> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      doorState = parameter().stateShifter(
-                        doorState,
-                        parameter().sect4,
-                        parameter().door,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Door",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: doorState,
+                    sector: parameter().sect4,
+                    device: parameter().door,
+                    label: 'Door',
+                    setDevState: setDoorState,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      motorState1 = parameter().stateShifter(
-                        motorState1,
-                        parameter().sect4,
-                        parameter().dev1,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "FAN",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: motorState1,
+                    sector: parameter().sect4,
+                    device: parameter().dev1,
+                    label: 'FAN',
+                    setDevState: setDev1State,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      motorState2 = parameter().stateShifter(
-                        motorState2,
-                        parameter().sect4,
-                        parameter().dev2,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Liquid 1",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: motorState2,
+                    sector: parameter().sect4,
+                    device: parameter().dev2,
+                    label: 'Liquid 1',
+                    setDevState: setDev2State,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      motorState3 = parameter().stateShifter(
-                        motorState3,
-                        parameter().sect4,
-                        parameter().dev3,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Liquid 2",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: motorState3,
+                    sector: parameter().sect4,
+                    device: parameter().dev3,
+                    label: 'Liquid 2',
+                    setDevState: setDev3State,
                   ),
                 ],
               ),
@@ -644,6 +669,16 @@ class _PannelExposState extends State<PannelExpos> {
     fetchData(parameter().sect5);
   }
 
+  void setDoorState(String index) {
+    doorState = index;
+    setState(() {});
+  }
+
+  void setDev1State(String index) {
+    ledState = index;
+    setState(() {});
+  }
+
   Future<void> fetchData(
     String section,
   ) async {
@@ -675,35 +710,19 @@ class _PannelExposState extends State<PannelExpos> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      doorState = parameter().stateShifter(
-                        doorState,
-                        parameter().sect5,
-                        parameter().door,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Door",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: doorState,
+                    sector: parameter().sect5,
+                    device: parameter().door,
+                    label: 'Door',
+                    setDevState: setDoorState,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      ledState = parameter().stateShifter(
-                        ledState,
-                        parameter().sect5,
-                        parameter().dev1,
-                      );
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Light",
-                      style: parameter().ctrlTextStyle,
-                    ),
-                    style: parameter().ctrlBTNstyle,
+                  PannelBTN(
+                    inState: ledState,
+                    sector: parameter().sect5,
+                    device: parameter().dev1,
+                    label: 'LIGHT',
+                    setDevState: setDev1State,
                   ),
                 ],
               ),

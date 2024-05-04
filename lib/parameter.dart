@@ -106,6 +106,7 @@ class parameter with ChangeNotifier {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
     ),
+    disabledForegroundColor: Color(0xff616e7c),
   );
 
   final TextStyle ctrlTextStyle = TextStyle(

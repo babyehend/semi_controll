@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:semi_controll/parameter.dart';
@@ -39,6 +40,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // final String serverAdr =
+  //     'C:\\Project\\Dart\\semi_controll\\SemiServer\\app.py';
+
+  // @override
+  // void initState() {
+  //   initBackEndServer();
+  //   super.initState();
+  // }
+
+  // void initBackEndServer() async {
+  //   await Process.start('python', [serverAdr]); // 예시: 'ls -l' 명령 실행
+  // }
+
   @override
   Widget build(BuildContext context) {
     dynamic prov_para = Provider.of<parameter>(context);
@@ -69,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: prov_para.textClr,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Provider.of<parameter>(context).pageNow,
+            child: prov_para.pageNow,
           ),
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
