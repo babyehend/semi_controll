@@ -1,5 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api
+import sys
+
+sys.path.append('./Import_files/')
+
+from mg996r import door_move
 
 app = Flask(__name__)
 api = Api(app)
@@ -223,9 +228,15 @@ def run_by_state(sect, dev, state) :
 def activate_door(sect, state) :
     print(sect, "Door", state)
 
+def activate_dev(sect, state) :
+    print(sect, 'Device', state)
+
 def run_device(sect, dev, state) :
     if dev == DOOR :
-        activate_door(sect, dev)
+        activate_door(sect, state)
+        door_move(l_sector.index(sect), state)
+    else:
+        pass
 
 @app.route('/')
 def init_state() :
@@ -241,7 +252,10 @@ def update_state():
     # Update the state data based on the PATCH request data
     for key, value in data.items():
         state_main[key].update(value)
-        run_by_state(key, list(value.keys())[0], list(value.values())[0])
+        i = list(value.keys())[0]
+        j = list(value.values())[0]
+        # run_by_state(key, i, j)
+        run_device(key, i, j)
     # Update other states similarly
     return state_main
 
