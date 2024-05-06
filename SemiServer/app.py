@@ -1,9 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api
-import sys
-
-sys.path.append('./Import_files/')
-
 from mg996r import door_move
 
 app = Flask(__name__)
@@ -45,7 +41,7 @@ temp_sheet = {
 }
 
 # each category list to get index - used for funcs
-l_sector = [AUTO_STATE, HMDS, SPIN, BAKE, DEVELOP, EXPOSURE]
+l_sector = [HMDS, SPIN, BAKE, DEVELOP, EXPOSURE, AUTO_STATE]
 l_state_motor = [OFF, ON]
 l_state_door = [CLOSE, OPEN]
 
@@ -188,7 +184,7 @@ run_expo = {
     DEV1 : {ON : dev1_on_exposure, OFF : dev1_off_exposure},
 }
 
-# AUTO PROCESS 
+# AUTO PROCESS
 
 def auto_process_on():
     print("AUTO PROCESS ON")
@@ -234,7 +230,9 @@ def activate_dev(sect, state) :
 def run_device(sect, dev, state) :
     if dev == DOOR :
         activate_door(sect, state)
-        door_move(l_sector.index(sect), state)
+        print(l_sector.index(sect))
+        print(type(l_sector.index(sect)))
+        door_move(l_sector.index(sect), l_state_door.index(state))
     else:
         pass
 
