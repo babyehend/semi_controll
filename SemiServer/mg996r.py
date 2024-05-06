@@ -7,30 +7,6 @@ import RPi.GPIO as GPIO
 from adafruit_motor import servo		#adafruit servo controll lib
 from adafruit_pca9685 import PCA9685	#adafruit pca9685 controll lib
 
-"""
-def setPinConfig(EN, INA, INB):
-	GPIO.setup(EN, GPIO.OUT)
-	GPIO.setup(INA, GPIO.OUT)
-	GPIO.setup(INB, GPIO.OUT)
-	pwm = GPIO.PWM(EN, 100)
-	pwm.start(0)
-	return pwm
-
-def setMotorControl(pwm, speed, stat):
-	pwm.ChangeDutyCycle(speed)
-
-	if stat == ON:
-		GPIO.output(IN1, HIGH)
-		GPIO.output(IN2, LOW)
-	elif stat == OFF:
-		GPIO.output(IN1, LOW)
-		GPIO.output(IN2, LOW)
-
-GPIO.setmode(GPIO.BCM)
-
-L1 = setPinConfig(ENA, IN1, IN2)
-# -- end --
-"""
 OPEN = 'OPEN'
 CLOSE = 'CLOSE'
 
@@ -69,7 +45,8 @@ servo4 = servo.Servo(pca.channels[4], min_pulse=544, max_pulse=2400)
 servo5 = servo.Servo(pca.channels[5], min_pulse=544, max_pulse=2400)
 
 # mg995 모터 실험용 객체
-doorMotor = list(servo.Servo(pca.channels[range(0,5) + 10], min_pulse=600, max_pulse=2400))
+doorMotor = [servo.Servo(pca.channels[i+10], min_pulse=500, max_pulse=2600) for i in range(0,5)]
+
 
 # 로봇팔 초기 구동 함수
 # 기본적인 위상으로 초기화
@@ -99,16 +76,30 @@ def arm_phase1():
 	time.sleep(2)
 	servo4.angle = 15
 
-# 설비 문 제어 
+# 설비 문 제어
 def door_move(loc, state) :
-	if state == OPEN:
-		doorMotor[loc].angle = 1800
-		time.sleep(3)
-	elif state == CLOSE:
-		doorMotor[loc].angle = 1200
-	doorMotor[loc].angle = 1500
+    i = loc
+    print(loc, i)
+    print('Hello')
+    if state:
+        print('World')
+        doorMotor[i].angle = 150
+        time.sleep(3)
+    else :
+        print('Morld')
+        doorMotor[i].angle = 60
+        time.sleep(3)
+
+    print('ByeBye')
+    doorMotor[i].angle = 90
 
 # =================== 로봇팔 동작 =====================
+doorMotor[0].angle = 120
+doorMotor[1].angle = 60
+
+time.sleep(3)
+
+doorMotor[0].angle = 90
+doorMotor[1].angle = 90
 
 # pca 모듈 종료 함수
-pca.deinit()
