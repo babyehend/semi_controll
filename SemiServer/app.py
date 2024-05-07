@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api
-from mg996r import door_move
+import gpio_ctrl as gc
+import servo_module as sm
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,6 +24,7 @@ OPEN = 'OPEN'
 CLOSE = 'CLOSE'
 
 # TEMP STATE
+TEMP = 'TEMP'
 SOFT = 'SOFT'
 HADR = 'HADR'
 POSTEX = 'POSTEX'
@@ -114,7 +116,7 @@ temp_mode_bake = 0;
 state_bake = {
     DOOR : CLOSE,
     DEV1 : SOFT,
-    'TEMP' : '50', #HEAT PAD
+    TEMP : '0', #HEAT PAD
 }
 
 run_bake = {
@@ -209,18 +211,6 @@ state_main = {
     EXPOSURE : state_expo,
 }
 
-run_main = {
-    AUTO_STATE : run_auto,
-    HMDS : run_hmds,
-    SPIN : run_spin,
-    BAKE : run_bake,
-    DEVELOP : run_develop,
-    EXPOSURE : run_expo,
-}
-
-def run_by_state(sect, dev, state) :
-    run_main[sect][dev][state]()
-
 def activate_door(sect, state) :
     print(sect, "Door", state)
 
@@ -230,9 +220,7 @@ def activate_dev(sect, state) :
 def run_device(sect, dev, state) :
     if dev == DOOR :
         activate_door(sect, state)
-        print(l_sector.index(sect))
-        print(type(l_sector.index(sect)))
-        door_move(l_sector.index(sect), l_state_door.index(state))
+        sm.door_move(l_sector.index(sect), l_state_door.index(state))
     else:
         pass
 
@@ -252,7 +240,6 @@ def update_state():
         state_main[key].update(value)
         i = list(value.keys())[0]
         j = list(value.values())[0]
-        # run_by_state(key, i, j)
         run_device(key, i, j)
     # Update other states similarly
     return state_main

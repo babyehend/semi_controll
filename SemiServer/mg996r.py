@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 
 import time
-import glob
 import board
 import RPi.GPIO as GPIO
 from adafruit_motor import servo		#adafruit servo controll lib
