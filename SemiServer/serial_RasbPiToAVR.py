@@ -1,6 +1,9 @@
 import time
 import serial
 
+sector = {'HMDS' : 'A', 'SPIN' : 'B', 'DEVELOP' : 'C', 'EXPOSURE' : 'D'}
+device = {'DEV1' : '1', 'DEV2' : '2', 'DEV3' : '3'}
+
 # 시리얼 포트와 Baud rate 설정
 serial_port = '/dev/ttyAMA2'  # Atmega128A의 시리얼 포트
 baud_rate = 9600  # Atmega128A와 동일한 Baud rate로 설정
@@ -19,18 +22,15 @@ def get_data():
         # Ctrl+C를 누르면 프로그램 종료
         print("Serial connection closed.")
 
-def put_data():
+def put_data(sect, dev):
     try:
         print("Try Sending")
-        while True:
-            # Atmega128A로부터 데이터 수신
-            ser.write(b'a')
-            time.sleep(0.5)
-            ser.write(b'b')
+        if sect in list(sector.keys()):
+            ser.write(sector[sect])
+            ser.write(device[dev])
 
     except KeyboardInterrupt:
         # Ctrl+C를 누르면 프로그램 종료
-        ser.close()
         print("Serial connection closed.")
 
 put_data()

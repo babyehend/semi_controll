@@ -94,7 +94,16 @@ class _PannelBTNState extends State<PannelBTN> {
               });
               Timer(Duration(seconds: 3), () async {
                 btnEnable = await true;
-                setState(() {});
+                setState(() {
+                  if (parameter().devices.contains(widget.device)) {
+                    outState = parameter().stateShifter(
+                      outState,
+                      widget.sector,
+                      widget.device,
+                    );
+                    widget.setDevState(outState);
+                  }
+                });
               });
             }
           : null,
@@ -180,7 +189,7 @@ class _PannelHMDSState extends State<PannelHMDS> {
                   PannelBTN(
                     inState: vibState,
                     sector: parameter().sect1,
-                    device: parameter().dev1,
+                    device: parameter().devices[0],
                     label: 'Oxyzen',
                     setDevState: setDev1State,
                   ),
@@ -288,7 +297,7 @@ class _PannelSpinState extends State<PannelSpin> {
                   PannelBTN(
                     inState: motorState,
                     sector: parameter().sect2,
-                    device: parameter().dev1,
+                    device: parameter().devices[0],
                     label: 'Coating',
                     setDevState: setDev1State,
                   ),
@@ -439,7 +448,7 @@ class _PannelBakeState extends State<PannelBake> {
                             parameter().stateShifter(
                               _selectedValue,
                               parameter().sect3,
-                              parameter().dev1,
+                              parameter().modes[0],
                             );
                           },
                         );
@@ -564,21 +573,21 @@ class _PannelDevelState extends State<PannelDevel> {
                   PannelBTN(
                     inState: motorState1,
                     sector: parameter().sect4,
-                    device: parameter().dev1,
+                    device: parameter().devices[0],
                     label: 'FAN',
                     setDevState: setDev1State,
                   ),
                   PannelBTN(
                     inState: motorState2,
                     sector: parameter().sect4,
-                    device: parameter().dev2,
+                    device: parameter().devices[1],
                     label: 'Liquid 1',
                     setDevState: setDev2State,
                   ),
                   PannelBTN(
                     inState: motorState3,
                     sector: parameter().sect4,
-                    device: parameter().dev3,
+                    device: parameter().devices[2],
                     label: 'Liquid 2',
                     setDevState: setDev3State,
                   ),
@@ -720,7 +729,7 @@ class _PannelExposState extends State<PannelExpos> {
                   PannelBTN(
                     inState: ledState,
                     sector: parameter().sect5,
-                    device: parameter().dev1,
+                    device: parameter().devices[0],
                     label: 'LIGHT',
                     setDevState: setDev1State,
                   ),
