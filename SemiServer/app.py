@@ -1,11 +1,39 @@
 from flask import Flask, request, jsonify
 from flask_restful import Api
+import threading
+import multiprocessing
 import gpio_ctrl as gc
 import servo_module as sm
 import serial_RasbPiToAVR as sr
 
 app = Flask(__name__)
 api = Api(app)
+
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self):
+        if not self.is_running:
+            self._timer = threading.Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
 
 # ----------- DEFINE PARAMETER -------------#
 # PROCESS NAME
@@ -35,6 +63,8 @@ DOOR = 'DOOR'
 DEV = ['DEV1','DEV2','DEV3']
 MODE = ['HEAT']
 
+t = '0'
+
 # TEMP DATA SHEET - {dict}
 temp_sheet = {
     SOFT : 50,
@@ -62,7 +92,7 @@ state_spin = {
 state_bake = {
     DOOR : CLOSE,
     MODE[0] : SOFT,
-    TEMP : '50'
+    TEMP : t
 }
 
 # SECTOR 4 - DEVELOP FUNCS
@@ -103,6 +133,15 @@ state_main = {
     EXPOSURE : state_expo,
 }
 
+def set_temperature(temp_C):
+    t = temp_C
+    print("t : {t}")
+
+interval_s = 1
+
+rt = RepeatedTimer(interval_s, gc.TempDataRead)
+rt.function = set_temperature()
+
 def activate_door(sect, state) :
     print(sect, "Door", state)
     sm.door_move(l_sector.index(sect), l_state_door.index(state))
@@ -121,7 +160,12 @@ def run_device(sect, dev, state) :
 
 @app.route('/')
 def init_state() :
+    rt.start()
     return state_main
+
+@app.route('/exit')
+def deinit_state() :
+    exit()
 
 @app.route('/', methods=['GET'])
 def get_state() :
