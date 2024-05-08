@@ -42,9 +42,8 @@ class parameter with ChangeNotifier {
   final String sect5 = 'EXPOSURE';
 
   final String door = 'DOOR';
-  final String dev1 = 'DEV1';
-  final String dev2 = 'DEV2';
-  final String dev3 = 'DEV3';
+  final List<String> devices = ['DEV1', 'DEV2', 'DEV3'];
+  final List<String> modes = ['HEAT', 'RPM'];
   final String temp = 'TEMP';
 
   // parameters that communicating with server

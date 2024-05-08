@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_restful import Api
 import gpio_ctrl as gc
 import servo_module as sm
+import serial_RasbPiToAVR as sr
 
 app = Flask(__name__)
 api = Api(app)
@@ -31,9 +32,8 @@ POSTEX = 'POSTEX'
 
 # DEVICE NAME
 DOOR = 'DOOR'
-DEV1 = 'DEV1'
-DEV2 = 'DEV2'
-DEV3 = 'DEV3'
+DEV = ['DEV1','DEV2','DEV3']
+MODE = ['HEAT']
 
 # TEMP DATA SHEET - {dict}
 temp_sheet = {
@@ -49,143 +49,35 @@ l_state_door = [CLOSE, OPEN]
 
 
 # SECTOR 1 - HMDS FUNCS
-def door_open_hmds():
-    print("HMDS Door Open")
-
-def door_close_hmds():
-    print("HMDS Door Close")
-
-def dev1_on_hmds():
-    print("HMDS air dispenser ON")
-
-def dev1_off_hmds():
-    print("HMDS air dispenser OFF")
-
 state_hmds = {
     DOOR : CLOSE,
-    DEV1 : OFF, #HUMIDIATOR WAVE
+    DEV[0] : OFF, #HUMIDIATOR WAVE
 }
-
-run_hmds = {
-    DOOR : {OPEN : door_open_hmds, CLOSE : door_close_hmds},
-    DEV1 : {ON : dev1_on_hmds, OFF : dev1_off_hmds},
-}
-
 # SECTOR 2 - SPIN FUNCS
-
-def door_open_spin():
-    print("SPIN Door Open")
-
-def door_close_spin():
-    print("SPIN Door Close")
-
-def dev1_on_spin():
-    print("SPIN ON")
-
-def dev1_off_spin():
-    print("SPIN OFF")
-
 state_spin = {
     DOOR : CLOSE,
-    DEV1 : OFF, #STEP MOTOR
+    DEV[0] : OFF, #STEP MOTOR
 }
-
-run_spin = {
-    DOOR : {OPEN : door_open_spin, CLOSE : door_close_spin},
-    DEV1 : {ON : dev1_on_spin, OFF : dev1_off_spin},
-}
-
 # SECTOR 3 - BAKE FUNCS
-def door_open_bake():
-    print("BAKE Door Open")
-
-def door_close_bake():
-    print("BAKE Door Close")
-
-def dev1_on_bake():
-    print("BAKE heat pad ON")
-
-def dev1_off_bake():
-    print("BAKE heat pad OFF")
-
-def dev1_set_bake():
-    print("BAKE temp set : none")
-
-temp_mode_bake = 0;
-
 state_bake = {
     DOOR : CLOSE,
-    DEV1 : SOFT,
-    TEMP : '0', #HEAT PAD
-}
-
-run_bake = {
-    DOOR : {OPEN : door_open_bake, CLOSE : door_close_bake},
-    DEV1 : {SOFT : dev1_set_bake, HADR : dev1_set_bake, POSTEX : dev1_set_bake},
+    MODE[0] : SOFT,
+    TEMP : '50'
 }
 
 # SECTOR 4 - DEVELOP FUNCS
-def door_open_develop():
-    print("DEVELOP Door Open")
-
-def door_close_develop():
-    print("DEVELOP Door Close")
-
-def dev1_on_develop():
-    print("DEVELOP DEV1 ON")
-
-def dev1_off_develop():
-    print("DEVELOP DEV1 OFF")
-
-def dev2_on_develop():
-    print("DEVELOP DEV2 ON")
-
-def dev2_off_develop():
-    print("DEVELOP DEV2 OFF")
-
-def dev3_on_develop():
-    print("DEVELOP DEV3 ON")
-
-def dev3_off_develop():
-    print("DEVELOP DEV3 OFF")
-
 state_develop = {
     DOOR : CLOSE,
-    DEV1 : OFF, #DC MOTOR
-    DEV2 : OFF, #PUMP MOTOR 1
-    DEV3 : OFF, #PUMP MOTOR 2
-}
-
-run_develop = {
-    DOOR : {OPEN : door_open_develop, CLOSE : door_close_develop},
-    DEV1 : {ON : dev1_on_develop, OFF : dev1_off_develop},
-    DEV2 : {ON : dev2_on_develop, OFF : dev2_off_develop},
-    DEV3 : {ON : dev3_on_develop, OFF : dev3_off_develop},
+    DEV[0] : OFF, #DC MOTOR
+    DEV[1] : OFF, #PUMP MOTOR 2
+    DEV[2] : OFF, #PUMP MOTOR 2
 }
 
 # SECTOR 5 - EXPOSURE FUNCS
-def door_open_exposure():
-    print("EXPOSURE Door Open")
-
-def door_close_exposure():
-    print("EXPOSURE Door Close")
-
-def dev1_on_exposure():
-    print("LIGHT ON")
-
-def dev1_off_exposure():
-    print("LIGHT OFF")
-
 state_expo = {
     DOOR : CLOSE,
-    DEV1 : OFF, #LED
+    DEV[0] : OFF, #LED
 }
-
-run_expo = {
-    DOOR : {OPEN : door_open_exposure, CLOSE : door_close_exposure},
-    DEV1 : {ON : dev1_on_exposure, OFF : dev1_off_exposure},
-}
-
 # AUTO PROCESS
 
 def auto_process_on():
@@ -213,15 +105,18 @@ state_main = {
 
 def activate_door(sect, state) :
     print(sect, "Door", state)
+    sm.door_move(l_sector.index(sect), l_state_door.index(state))
 
-def activate_dev(sect, state) :
-    print(sect, 'Device', state)
+def activate_motor(sect, dev) :
+    print(sect, dev, "activation")
+    sr.put_data(sect=sect, dev=dev)
 
 def run_device(sect, dev, state) :
     if dev == DOOR :
         activate_door(sect, state)
-        sm.door_move(l_sector.index(sect), l_state_door.index(state))
-    else:
+    elif dev in DEV:
+        activate_motor(sect, dev)
+    elif dev in MODE:
         pass
 
 @app.route('/')
