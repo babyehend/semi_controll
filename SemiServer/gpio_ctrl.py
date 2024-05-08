@@ -25,8 +25,6 @@ def TempFileRead():
 	f.close()
 	return lines
 
-TempFileRead()
-
 def TempDataRead():
 	lines = TempFileRead()
 	while lines[0].strip()[-3:] != 'YES' :
