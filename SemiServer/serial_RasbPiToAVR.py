@@ -26,8 +26,8 @@ def put_data(sect, dev):
     try:
         print("Try Sending")
         if sect in list(sector.keys()):
-            ser.write(sector[sect])
-            ser.write(device[dev])
+            ser.write(sector[sect], encoding='ascii')
+            ser.write(device[dev], encoding='ascii')
 
     except KeyboardInterrupt:
         # Ctrl+C를 누르면 프로그램 종료
