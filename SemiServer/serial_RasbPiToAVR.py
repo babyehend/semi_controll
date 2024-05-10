@@ -17,6 +17,7 @@ def get_data():
             # Atmega128A로부터 데이터 수신
             received_data = ser.readline().decode().strip()
             if received_data  : print("Received:", received_data)
+			#put_data(sector['EXPOSURE'], device['DEV1'])
 
     except KeyboardInterrupt:
         # Ctrl+C를 누르면 프로그램 종료
@@ -24,13 +25,18 @@ def get_data():
 
 def put_data(sect, dev):
     try:
-        print("Try Sending")
-        if sect in list(sector.keys()):
-            ser.write(sector[sect], encoding='ascii')
-            ser.write(device[dev], encoding='ascii')
+        while True:
+            if sect in list(sector.keys()):
+                ser.write(bytes(sector[sect], encoding='ascii'))
+                time.sleep(10)
+                ser.write(bytes(device[dev], encoding='ascii'))
+                print("Sending", sector[sect])
+                print("Sending", device[dev])
+                time.sleep(10)
 
     except KeyboardInterrupt:
         # Ctrl+C를 누르면 프로그램 종료
         print("Serial connection closed.")
 
-put_data()
+get_data()
+put_data("HMDS", "DEV1")

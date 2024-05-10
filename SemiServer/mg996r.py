@@ -10,41 +10,6 @@ from adafruit_pca9685 import PCA9685	#adafruit pca9685 controll lib
 OPEN = 'OPEN'
 CLOSE = 'CLOSE'
 
-GPIO.setmode(GPIO.BCM)
-# Thermal Module setting
-GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-# Relay Module setting
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-base_dir = '/sys/bus/w1/devices/'
-while True:
-	try:
-		device_folder = glob.glob(base_dir + '28*')[0]
-		break
-	except IndexError:
-		time.sleep(0.5)
-		continue
-device_file = device_folder + '/w1_slave'
-
-def TempFileRead():
-	f = open(device_file, 'r')
-	lines = f.readlines()
-	f.close()
-	return lines
-
-TempFileRead()
-
-def TempDataRead():
-	lines = TempFileRead()
-	while lines[0].strip()[-3:] != 'YES' :
-		time.sleep(0.2)
-		lines = TempFileRead()
-	equals_pos = lines[1].find('t=')
-	if equals_pos != -1:
-		temp_string = lines[1][equals_pos + 2:]
-		temp_c = float(temp_string) / 1000.0
-		return temp_c
-
 i2c = board.I2C()  # uses board.SCL and board.SDA
 # i2c 통신을 위한 객체 생성 - board 라이브러리의 I2C 클래스 이용
 
@@ -80,7 +45,7 @@ servo4 = servo.Servo(pca.channels[4], min_pulse=544, max_pulse=2400)
 servo5 = servo.Servo(pca.channels[5], min_pulse=544, max_pulse=2400)
 
 # mg995 모터 실험용 객체
-doorMotor = [servo.Servo(pca.channels[i+10], min_pulse=500, max_pulse=2600) for i in range(0,5)]
+#doorMotor = [servo.Servo(pca.channels[i+10], min_pulse=500, max_pulse=2600) for i in range(0,5)]
 
 
 # 로봇팔 초기 구동 함수
@@ -111,39 +76,9 @@ def arm_phase1():
 	time.sleep(2)
 	servo4.angle = 15
 
-# 설비 문 제어
-def door_move(loc, state) :
-    i = loc
-    print(loc, i)
-    print('Hello')
-    if state:
-        print('World')
-        doorMotor[i].angle = 150
-        time.sleep(3)
-    else :
-        print('Morld')
-        doorMotor[i].angle = 60
-        time.sleep(3)
-
-    print('ByeBye')
-    doorMotor[i].angle = 90
-
-# 릴레이 모듈 제어 함수
-def relay_test():
-	for i in range(1,3):
-		GPIO.output(23, True)
-		time.sleep(2)
-		GPIO.output(23, False)
-		time.sleep(2)
-
 # =================== 로봇팔 동작 =====================
-try:
-	while True:
-		print('--------------------------------------')
-		print("Temp :", TempDataRead(), "'C")
-		time.sleep(1)
-except KeyboardInterrupt :
-	GPIO.cleanup()
-
+arm_init()
+time.sleep(2)
+arm_phase1()
 
 # pca 모듈 종료 함수
