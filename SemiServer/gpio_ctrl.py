@@ -23,6 +23,7 @@ DIR = 21
 # Thermal module PIN define
 THERMAL = 0
 
+GPIO.setwarnings(False)
 # GPIO PIN mode setting
 GPIO.setmode(GPIO.BCM)
 # Motor driver
@@ -110,6 +111,7 @@ def spin_stepmotor_work():
 
 
 # Thermal module directory
+"""
 base_dir = '/sys/bus/w1/devices/'
 
 while True:
@@ -149,6 +151,7 @@ except KeyboardInterrupt :
 	GPIO.cleanup()
 
 # You can also specify the movement fractionally.
+"""
 """
 class ServoFractionMove():
 	def init_motor(num):
