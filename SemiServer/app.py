@@ -1,10 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restful import Api
 import threading
-import multiprocessing
-import gpio_ctrl as gc
-import servo_module as sm
-import serial_RasbPiToAVR as sr
+# import gpio_ctrl as gc
+# import servo_module as sm
+# import serial_RasbPiToAVR as sr
 
 app = Flask(__name__)
 api = Api(app)
@@ -139,16 +138,16 @@ def set_temperature(temp_C):
 
 interval_s = 1
 
-rt = RepeatedTimer(interval_s, gc.TempDataRead)
-rt.function = set_temperature()
+# rt = RepeatedTimer(interval_s, gc.TempDataRead)
+# rt.function = set_temperature()
 
 def activate_door(sect, state) :
     print(sect, "Door", state)
-    sm.door_move(l_sector.index(sect), l_state_door.index(state))
+    # sm.door_move(l_sector.index(sect), l_state_door.index(state))
 
 def activate_motor(sect, dev) :
     print(sect, dev, "activation")
-    sr.put_data(sect=sect, dev=dev)
+    # sr.put_data(sect=sect, dev=dev)
 
 def run_device(sect, dev, state) :
     if dev == DOOR :
@@ -160,7 +159,7 @@ def run_device(sect, dev, state) :
 
 @app.route('/')
 def init_state() :
-    rt.start()
+    # rt.start()
     return state_main
 
 @app.route('/exit')
