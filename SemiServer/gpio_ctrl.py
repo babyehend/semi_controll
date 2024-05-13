@@ -4,8 +4,8 @@ import RPi.GPIO as GPIO
 
 # Motor driver PIN define
 STBY_PWM = 4 	    #HIGHT Input PIN for all STBY & PWMS
-PUMP_HMDS = 17      #Motor driver 1 - AIN1
-FAN_HMDS = 22       #Motor driver 1 - BIN1
+FAN_HMDS = 17       #Motor driver 1 - AIN1
+PUMP_SPIN = 22      #Motor driver 1 - BIN1
 PUMP1_DEVELOP = 19  #Motor driver 2 - AIN1
 PUMP2_DEVELOP = 26  #Motor driver 2 - BIN1
 
@@ -28,7 +28,7 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 # Motor driver
 GPIO.setup(STBY_PWM, GPIO.OUT)
-GPIO.setup(PUMP_HMDS, GPIO.OUT)
+GPIO.setup(PUMP_SPIN, GPIO.OUT)
 GPIO.setup(FAN_HMDS, GPIO.OUT)
 GPIO.setup(PUMP1_DEVELOP, GPIO.OUT)
 GPIO.setup(PUMP2_DEVELOP, GPIO.OUT)
@@ -49,7 +49,7 @@ GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # All PIN reset
 GPIO.output(STBY_PWM, GPIO.LOW)
-GPIO.output(PUMP_HMDS, GPIO.LOW)
+GPIO.output(PUMP_SPIN, GPIO.LOW)
 GPIO.output(FAN_HMDS, GPIO.LOW)
 GPIO.output(PUMP1_DEVELOP, GPIO.LOW)
 GPIO.output(PUMP2_DEVELOP, GPIO.LOW)
@@ -62,15 +62,15 @@ GPIO.output(STEP, GPIO.LOW)
 GPIO.output(DIR, GPIO.LOW)
 
 # ------------ Motor driver function --------------- #
-def hmds_pump_work():
-	GPIO.output(PUMP_HMDS, GPIO.HIGH)
-	time.sleep(1)
-	GPIO.output(PUMP_HMDS, GPIO.LOW)
-
 def hmds_fan_work():
 	GPIO.output(FAN_HMDS, GPIO.HIGH)
 	time.sleep(2)
 	GPIO.output(FAN_HMDS, GPIO.LOW)
+
+def spin_pump_work():
+	GPIO.output(PUMP_SPIN, GPIO.HIGH)
+	time.sleep(1)
+	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():
 	GPIO.output(PUMP1_DEVELOP, GPIO.HIGH)
@@ -109,7 +109,7 @@ def spin_stepmotor_work():
 	time.sleep(2)
 	GPIO.output(MCRW_HMDS, GPIO.LOW)
 
-
+hmds_fan_work()
 # Thermal module directory
 """
 base_dir = '/sys/bus/w1/devices/'
