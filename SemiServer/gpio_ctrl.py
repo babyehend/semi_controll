@@ -18,9 +18,11 @@ LIGHT_EX = 23       #RELAY module 4 - data
 EN = 12
 STEP = 20
 DIR = 21
+SPEED = 0.003
 
 # Thermal module PIN define
-THERMAL = 0
+THERMAL = 4
+TEMP_SET = 50
 
 GPIO.setwarnings(False)
 # GPIO PIN mode setting
@@ -58,6 +60,12 @@ GPIO.output(EN, GPIO.HIGH)
 GPIO.output(STEP, GPIO.LOW)
 GPIO.output(DIR, GPIO.LOW)
 
+def set_spinspeed(value):
+	SPEED = value
+
+def set_temp(value):
+	TEMP_SET = value
+
 # ------------ Motor driver function --------------- #
 def hmds_fan_work():
 	GPIO.output(FAN_HMDS, GPIO.HIGH)
@@ -66,7 +74,7 @@ def hmds_fan_work():
 
 def spin_pump_work():
 	GPIO.output(PUMP_SPIN, GPIO.HIGH)
-	time.sleep(1)
+	time.sleep(10)
 	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():
@@ -85,19 +93,21 @@ def hmds_vapor_work():
 	time.sleep(10)
 	GPIO.output(MCRW_HMDS, GPIO.LOW)
 
-def bake_heatpad_work():
+def bake_heatpad_on():
 	GPIO.output(HEATPAD_BAKE, GPIO.HIGH)
-	time.sleep(2)
+
+def bake_heatpad_off():
 	GPIO.output(HEATPAD_BAKE, GPIO.LOW)
 
 def develop_fan_work():
 	GPIO.output(FAN_DEVLP, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(10)
 	GPIO.output(FAN_DEVLP, GPIO.LOW)
 
-def exposure_light_work():
+def exposure_light_on():
 	GPIO.output(LIGHT_EX, GPIO.HIGH)
-	time.sleep(2)
+
+def exposure_light_off():
 	GPIO.output(LIGHT_EX, GPIO.LOW)
 	
 # ------------ Relay module function --------------- #
@@ -105,14 +115,36 @@ def spin_stepmotor_work():
 	GPIO.output(EN, GPIO.LOW)
 	for i in range(0,1000):
 		GPIO.output(STEP, GPIO.HIGH)
-		time.sleep(0.003)
+		time.sleep(SPEED)
 		GPIO.output(STEP, GPIO.LOW)
-		time.sleep(0.003)
+		time.sleep(SPEED)
+	
+	GPIO.output(EN, GPIO.HIGH)
 
-hmds_fan_work()
+# ------------ AUTO PROCESS function --------------- #
+def auto_hmds():
+	hmds_fan_work()
+	hmds_vapor_work()
+
+def auto_spin():
+	spin_pump_work()
+	spin_stepmotor_work()
+
+def auto_develop():
+	develop_pump1_work()
+	time.sleep(0.5)
+	develop_pump2_work()
+	time.sleep(1)
+	develop_fan_work()
+
+def auto_exposure():
+	exposure_light_on()
+	time.sleep(10)
+	exposure_light_off()
+
 # Thermal module directory
 base_dir = '/sys/bus/w1/devices/'
-"""
+
 while True:
 	try:
 		device_folder = glob.glob(base_dir + '28*')[0]
@@ -120,6 +152,7 @@ while True:
 	except IndexError:
 		time.sleep(0.5)
 		continue
+
 device_file = device_folder + '/w1_slave'
 
 def TempFileRead():
@@ -138,39 +171,24 @@ def TempDataRead():
 		temp_string = lines[1][equals_pos + 2:]
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
+
 """
-# =================== 로봇팔 동작 =====================
-hmds_fan_work()
 """
 try:
-	spin_stepmotor_work()
 	while True:
-		print('--------------------------------------')
-		print("Temp :", TempDataRead(), "'C")
+		temp_cur = TempDataRead()
+		if temp_cur >= TEMP_SET :
+			bake_heatpad_off()
+		else :
+			bake_heatpad_on()
 		time.sleep(1)
 except KeyboardInterrupt :
 	GPIO.cleanup()
 
-# You can also specify the movement fractionally.
-"""
-"""
-class ServoFractionMove():
-	def init_motor(num):
-		pre_loc = 0.0
-		fraction = pre_loc
-		post_loc = 0.5
-		while fraction < post_loc:
-			armMotor[num].fraction = fraction
-			fraction += 0.01
-			time.sleep(0.03)
-		pre_loc = post_loc
-		
-	def servo_work(input_angle, num):
-		post_loc = 1.0 * ( input_angle / 180 )
-		fraction = pre_loc
-		while fraction < post_loc:
-			armMotor[num].fraction = fraction
-			fraction += 0.01
-			time.sleep(0.03)
-		pre_loc = post_loc
-"""
+auto_hmds()
+time.sleep(5)
+auto_spin()
+time.sleep(5)
+auto_develop()
+time.sleep(5)
+auto_exposure()

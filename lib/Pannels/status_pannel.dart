@@ -64,7 +64,7 @@ class PannelBTN extends StatefulWidget {
     required this.setDevState,
   });
 
-  final String inState;
+  final dynamic inState;
   final String sector;
   final String device;
   final String label;
@@ -79,7 +79,7 @@ class _PannelBTNState extends State<PannelBTN> {
 
   @override
   Widget build(BuildContext context) {
-    String outState = widget.inState;
+    dynamic outState = widget.inState;
     return ElevatedButton(
       onPressed: btnEnable
           ? () {
