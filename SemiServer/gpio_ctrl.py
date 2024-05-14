@@ -18,11 +18,11 @@ LIGHT_EX = 23       #RELAY module 4 - data
 EN = 12
 STEP = 20
 DIR = 21
-SPEED = 0.003
+SPEED = 0.001
 
 # Thermal module PIN define
-THERMAL = 4
-TEMP_SET = 50
+THERMAL = 0
+TEMP_SET = 40
 
 GPIO.setwarnings(False)
 # GPIO PIN mode setting
@@ -45,7 +45,7 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.setup(DIR, GPIO.OUT)
 
 # Thermal Module
-GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # All PIN reset
 GPIO.output(PUMP_SPIN, GPIO.LOW)
@@ -74,7 +74,7 @@ def hmds_fan_work():
 
 def spin_pump_work():
 	GPIO.output(PUMP_SPIN, GPIO.HIGH)
-	time.sleep(10)
+	time.sleep(2)
 	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():
@@ -113,21 +113,32 @@ def exposure_light_off():
 # ------------ Relay module function --------------- #
 def spin_stepmotor_work():
 	GPIO.output(EN, GPIO.LOW)
-	for i in range(0,1000):
+	for i in range(0,3000):
 		GPIO.output(STEP, GPIO.HIGH)
 		time.sleep(SPEED)
 		GPIO.output(STEP, GPIO.LOW)
 		time.sleep(SPEED)
+		if i > 200 :
+			set_spinspeed(0.002)
+		if i > 1000 :
+			set_spinspeed(0.001)
+		if i > 2600 :
+			set_spinspeed(0.003)
 	
 	GPIO.output(EN, GPIO.HIGH)
 
 # ------------ AUTO PROCESS function --------------- #
 def auto_hmds():
-	hmds_fan_work()
-	hmds_vapor_work()
+	GPIO.output(MCRW_HMDS, GPIO.HIGH)
+	time.sleep(2)
+	GPIO.output(FAN_HMDS, GPIO.HIGH)
+	time.sleep(8)
+	GPIO.output(MCRW_HMDS, GPIO.LOW)
+	GPIO.output(FAN_HMDS, GPIO.LOW)
 
 def auto_spin():
 	spin_pump_work()
+	time.sleep(1)
 	spin_stepmotor_work()
 
 def auto_develop():
@@ -171,24 +182,26 @@ def TempDataRead():
 		temp_string = lines[1][equals_pos + 2:]
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
-
-"""
-"""
 try:
 	while True:
 		temp_cur = TempDataRead()
+		print(temp_cur)
+		"""
 		if temp_cur >= TEMP_SET :
 			bake_heatpad_off()
 		else :
 			bake_heatpad_on()
+		"""
 		time.sleep(1)
 except KeyboardInterrupt :
-	GPIO.cleanup()
+	print("auto start")
+"""
 
-auto_hmds()
-time.sleep(5)
+#auto_hmds()
+#time.sleep(2)
 auto_spin()
-time.sleep(5)
+time.sleep(2)
 auto_develop()
-time.sleep(5)
+time.sleep(2)
 auto_exposure()
+"""
