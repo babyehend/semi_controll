@@ -1,9 +1,8 @@
 from flask import Flask, request
 from flask_restful import Api
 import threading
-# import gpio_ctrl as gc
+import gpio_ctrl as gc
 # import servo_module as sm
-# import serial_RasbPiToAVR as sr
 
 app = Flask(__name__)
 api = Api(app)
@@ -51,25 +50,32 @@ OFF = 'OFF'
 OPEN = 'OPEN'
 CLOSE = 'CLOSE'
 
+SLOW = 'SLOW'
+MIDDLE = 'MIDDLE'
+FAST = 'FAST'
+SPEED = {
+    SLOW : 0.005,
+    MIDDLE : 0.003,
+    FAST : 0.001,
+}
+
 # TEMP STATE
 TEMP = 'TEMP'
 SOFT = 'SOFT'
-HADR = 'HADR'
+HARD = 'HARD'
 POSTEX = 'POSTEX'
+HEAT_VALUE = {
+    SOFT : 50,
+    HARD : 70,
+    POSTEX : 90
+}
+
+t = '0'
 
 # DEVICE NAME
 DOOR = 'DOOR'
 DEV = ['DEV1','DEV2','DEV3']
-MODE = ['HEAT']
-
-t = '0'
-
-# TEMP DATA SHEET - {dict}
-temp_sheet = {
-    SOFT : 50,
-    HADR : 80,
-    POSTEX : 90
-}
+MODE = ['HEAT_VALUE', 'SPIN_SPEED']
 
 # each category list to get index - used for funcs
 l_sector = [HMDS, SPIN, BAKE, DEVELOP, EXPOSURE, AUTO_STATE]
@@ -86,11 +92,12 @@ state_hmds = {
 state_spin = {
     DOOR : CLOSE,
     DEV[0] : OFF, #STEP MOTOR
+    MODE[1] : SPEED[MIDDLE]
 }
 # SECTOR 3 - BAKE FUNCS
 state_bake = {
     DOOR : CLOSE,
-    MODE[0] : SOFT,
+    MODE[0] : HEAT_VALUE[0],
     TEMP : t
 }
 
@@ -131,15 +138,21 @@ state_main = {
     DEVELOP : state_develop,
     EXPOSURE : state_expo,
 }
-
+"""
 def set_temperature(temp_C):
     t = temp_C
     print("t : {t}")
+    if t >= state_bake[MODE[0]] :
+        gc.bake_heatpad_off
+    else :
+        gc.bake_heatpad_on
+
 
 interval_s = 1
 
-# rt = RepeatedTimer(interval_s, gc.TempDataRead)
-# rt.function = set_temperature()
+rt = RepeatedTimer(interval_s, gc.TempDataRead)
+rt.function = set_temperature()
+"""
 
 def activate_door(sect, state) :
     print(sect, "Door", state)
@@ -149,13 +162,22 @@ def activate_motor(sect, dev) :
     print(sect, dev, "activation")
     # sr.put_data(sect=sect, dev=dev)
 
+def change_setting(sect, state):
+    print(sect, 'value changes to', state)
+    if sect == SPIN:
+        # gc.set_spinspeed(SPEED[state])
+        pass
+    else :
+        # gc.set_temp(HEAT_VALUE[state])
+        pass
+
 def run_device(sect, dev, state) :
     if dev == DOOR :
         activate_door(sect, state)
     elif dev in DEV:
         activate_motor(sect, dev)
     elif dev in MODE:
-        pass
+        change_setting(sect, state)
 
 @app.route('/')
 def init_state() :
