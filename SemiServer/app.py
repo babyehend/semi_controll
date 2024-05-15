@@ -1,8 +1,9 @@
 from flask import Flask, request
 from flask_restful import Api
+import time
 import threading
 import gpio_ctrl as gc
-# import servo_module as sm
+import servo_module as sm
 
 app = Flask(__name__)
 api = Api(app)
@@ -53,9 +54,9 @@ CLOSE = 'CLOSE'
 SLOW = 'SLOW'
 MIDDLE = 'MIDDLE'
 FAST = 'FAST'
-SPEED = {
-    SLOW : 0.005,
-    MIDDLE : 0.003,
+SPIN_SPEED = {
+    SLOW : 0.003,
+    MIDDLE : 0.002,
     FAST : 0.001,
 }
 
@@ -65,12 +66,12 @@ SOFT = 'SOFT'
 HARD = 'HARD'
 POSTEX = 'POSTEX'
 HEAT_VALUE = {
-    SOFT : 50,
-    HARD : 70,
-    POSTEX : 90
+    SOFT : 30,
+    HARD : 40,
+    POSTEX : 35
 }
 
-t = '0'
+t = 0
 
 # DEVICE NAME
 DOOR = 'DOOR'
@@ -92,13 +93,13 @@ state_hmds = {
 state_spin = {
     DOOR : CLOSE,
     DEV[0] : OFF, #STEP MOTOR
-    MODE[1] : SPEED[MIDDLE]
+    MODE[1] : MIDDLE
 }
 # SECTOR 3 - BAKE FUNCS
 state_bake = {
     DOOR : CLOSE,
-    MODE[0] : HEAT_VALUE[0],
-    TEMP : t
+    MODE[0] : SOFT,
+    TEMP : str(t)
 }
 
 # SECTOR 4 - DEVELOP FUNCS
@@ -138,11 +139,11 @@ state_main = {
     DEVELOP : state_develop,
     EXPOSURE : state_expo,
 }
-"""
+
 def set_temperature(temp_C):
     t = temp_C
     print("t : {t}")
-    if t >= state_bake[MODE[0]] :
+    if t >= HEAT_VALUE[state_bake[MODE[0]]] :
         gc.bake_heatpad_off
     else :
         gc.bake_heatpad_on
@@ -152,7 +153,6 @@ interval_s = 1
 
 rt = RepeatedTimer(interval_s, gc.TempDataRead)
 rt.function = set_temperature()
-"""
 
 def activate_door(sect, state) :
     print(sect, "Door", state)
@@ -160,15 +160,102 @@ def activate_door(sect, state) :
 
 def activate_motor(sect, dev) :
     print(sect, dev, "activation")
-    # sr.put_data(sect=sect, dev=dev)
+    if sect == HMDS:
+        if dev == DEV[0] :
+            gc.hmds_fan_work()
+        elif dev == DEV[1] :
+            gc.hmds_vapor_work()
+
+def activate_autoprocess(state):
+    print('Auto process', state)
+    state_bake[MODE[0]] = SOFT
+    # Wafer Stage out
+    sm.stage_out()
+    time.sleep(2)
+    # Robotarm Standby
+
+    # Wafer HMDS in
+    sm.hmds_in()
+    time.sleep(3)
+    # HMDS start
+    gc.auto_hmds()
+    time.sleep(3)
+    # HMDS end
+    sm.hmds_out()
+    time.sleep(2)
+
+    # Wafer Soft BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = HARD
+    time.sleep(2)
+
+    # Wafer SPIN COATING in
+    sm.spin_in()
+    time.sleep(3)
+    # SPIN COATING start
+    gc.auto_spin()
+    time.sleep(3)
+    # SPIN COATING end
+    sm.spin_out()
+    time.sleep(2)
+
+# Wafer Hard BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = POSTEX
+    time.sleep(2)
+
+    # Wafer DEVELOP in
+    sm.develop_in()
+    time.sleep(3)
+    # DEVELOP start
+    gc.auto_develop()
+    time.sleep(3)
+    # DEVELOP end
+    sm.develop_out()
+    time.sleep(2)
+
+    # Wafer PostEx BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = SOFT
+    time.sleep(2)
+
+    # Wafer EXPOSURE in
+    sm.exposure_in()
+    time.sleep(3)
+    # EXPOSURE start
+    gc.auto_exposure()
+    time.sleep(3)
+    # EXPOSURE end
+    sm.exposure_out()
+    time.sleep(2)
+
+    # Wafer Stage out
+    sm.stage_in()
+    time.sleep(2)
+    # Robotarm Standby
 
 def change_setting(sect, state):
     print(sect, 'value changes to', state)
     if sect == SPIN:
-        # gc.set_spinspeed(SPEED[state])
+        gc.set_spinspeed(SPIN_SPEED[state])
         pass
     else :
-        # gc.set_temp(HEAT_VALUE[state])
+        gc.set_temp(HEAT_VALUE[state])
         pass
 
 def run_device(sect, dev, state) :
@@ -178,10 +265,13 @@ def run_device(sect, dev, state) :
         activate_motor(sect, dev)
     elif dev in MODE:
         change_setting(sect, state)
+    elif dev == AUTO :
+        if state == ON :
+            activate_autoprocess(state)
 
 @app.route('/')
 def init_state() :
-    # rt.start()
+    rt.start()
     return state_main
 
 @app.route('/exit')

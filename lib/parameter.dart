@@ -42,9 +42,10 @@ class parameter with ChangeNotifier {
   final String sect5 = 'EXPOSURE';
 
   final String door = 'DOOR';
-  final List<String> devices = ['DEV1', 'DEV2', 'DEV3'];
-  final List<String> modes = ['HEAT', 'RPM'];
   final String temp = 'TEMP';
+  final List<String> devices = ['DEV1', 'DEV2', 'DEV3'];
+  final List<String> modes = ['SPIN_SPEED', 'HEAT_VALUE'];
+  final List<String> steps = [''];
 
   // parameters that communicating with server
   var dio = Dio(BaseOptions(
