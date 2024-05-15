@@ -184,16 +184,6 @@ def activate_autoprocess(state):
     sm.hmds_out()
     time.sleep(2)
 
-    # Wafer Soft BAKE in
-    sm.bake_in()
-    time.sleep(3)
-    # Hard BAKE start
-    time.sleep(10)
-    # Hard BAKE end
-    sm.bake_out()
-    state_bake[MODE[0]] = HARD
-    time.sleep(2)
-
     # Wafer SPIN COATING in
     sm.spin_in()
     time.sleep(3)
@@ -204,34 +194,14 @@ def activate_autoprocess(state):
     sm.spin_out()
     time.sleep(2)
 
-# Wafer Hard BAKE in
+    # Wafer Soft BAKE in
     sm.bake_in()
     time.sleep(3)
     # Hard BAKE start
     time.sleep(10)
     # Hard BAKE end
     sm.bake_out()
-    state_bake[MODE[0]] = POSTEX
-    time.sleep(2)
-
-    # Wafer DEVELOP in
-    sm.develop_in()
-    time.sleep(3)
-    # DEVELOP start
-    gc.auto_develop()
-    time.sleep(3)
-    # DEVELOP end
-    sm.develop_out()
-    time.sleep(2)
-
-    # Wafer PostEx BAKE in
-    sm.bake_in()
-    time.sleep(3)
-    # Hard BAKE start
-    time.sleep(10)
-    # Hard BAKE end
-    sm.bake_out()
-    state_bake[MODE[0]] = SOFT
+    state_bake[MODE[0]] = HARD
     time.sleep(2)
 
     # Wafer EXPOSURE in
@@ -244,10 +214,35 @@ def activate_autoprocess(state):
     sm.exposure_out()
     time.sleep(2)
 
-    # Wafer Stage out
-    sm.stage_in()
+    # Wafer PostEx BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = SOFT
     time.sleep(2)
-    # Robotarm Standby
+
+    # Wafer DEVELOP in
+    sm.develop_in()
+    time.sleep(3)
+    # DEVELOP start
+    gc.auto_develop()
+    time.sleep(3)
+    # DEVELOP end
+    sm.develop_out()
+    time.sleep(2)
+
+    # Wafer Hard BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = POSTEX
+    time.sleep(2)
 
 def change_setting(sect, state):
     print(sect, 'value changes to', state)
