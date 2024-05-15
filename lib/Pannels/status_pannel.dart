@@ -239,6 +239,8 @@ class PannelSpin extends StatefulWidget {
 class _PannelSpinState extends State<PannelSpin> {
   String doorState = '';
   String motorState = '';
+  final _valueList = ['SLOW', 'MIDDLE', 'FAST'];
+  var _selectedValue = 'SLOW';
 
   @override
   void initState() {
@@ -301,6 +303,47 @@ class _PannelSpinState extends State<PannelSpin> {
                     label: 'Coating',
                     setDevState: setDev1State,
                   ),
+                  Container(
+                    height: 40,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: parameter().bgClr,
+                    ),
+                    child: DropdownButton(
+                      iconEnabledColor: parameter().textClr,
+                      underline: Container(),
+                      style: TextStyle(
+                        color: parameter().textClr,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      focusColor: parameter().bgClr,
+                      dropdownColor: parameter().bgClr,
+                      value: _selectedValue,
+                      items: _valueList.map(
+                        (value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(value),
+                          );
+                        },
+                      ).toList(),
+                      onChanged: (value) {
+                        setState(
+                          () {
+                            _selectedValue = value.toString();
+                            parameter().stateShifter(
+                              _selectedValue,
+                              parameter().sect2,
+                              parameter().modes[0],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -347,6 +390,9 @@ class PannelBake extends StatefulWidget {
 class _PannelBakeState extends State<PannelBake> {
   String doorState = '';
   String temp = '';
+
+  late Timer _timer;
+
   final _valueList = ['SOFT', 'HARD', 'POSTEX'];
   var _selectedValue = 'SOFT';
 
@@ -354,9 +400,16 @@ class _PannelBakeState extends State<PannelBake> {
   void initState() {
     super.initState();
     fetchData(parameter().sect3);
-    Timer.periodic(Duration(seconds: 1), (timer) async {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
       await fetchTemp(parameter().sect3);
+      setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void setDoorState(String index) {
@@ -383,9 +436,7 @@ class _PannelBakeState extends State<PannelBake> {
   ) async {
     try {
       final response = await Dio().get('http://127.0.0.1:5000/');
-      setState(() {
-        temp = response.data[section]['TEMP'];
-      });
+      temp = response.data[section]['TEMP'];
     } catch (error) {
       print('Error fetching data: $error');
     }
@@ -448,7 +499,7 @@ class _PannelBakeState extends State<PannelBake> {
                             parameter().stateShifter(
                               _selectedValue,
                               parameter().sect3,
-                              parameter().modes[0],
+                              parameter().modes[1],
                             );
                           },
                         );
