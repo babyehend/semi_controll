@@ -156,7 +156,7 @@ def exposure_out():
 # 처음 로봇팔 동작
 #웨이퍼 스테이지
 
-'''
+
 arm_init()
 time.sleep(1)
 armMotor1[0].angle = 179
@@ -1038,7 +1038,7 @@ for i in range(90):
 	time.sleep(0.2)
 	armMotor[1].angle -= 1.3
 	time.sleep(0.2)
-'''
+
 # 들어가서 다시 잡는거 다시 만들기 
 # Hard  Bake	
 #다시 init
