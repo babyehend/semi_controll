@@ -1,9 +1,9 @@
 from flask import Flask, request
 from flask_restful import Api
+import time
 import threading
-# import gpio_ctrl as gc
-# import servo_module as sm
-# import serial_RasbPiToAVR as sr
+import gpio_ctrl as gc
+import servo_module as sm
 
 app = Flask(__name__)
 api = Api(app)
@@ -51,25 +51,32 @@ OFF = 'OFF'
 OPEN = 'OPEN'
 CLOSE = 'CLOSE'
 
+SLOW = 'SLOW'
+MIDDLE = 'MIDDLE'
+FAST = 'FAST'
+SPIN_SPEED = {
+    SLOW : 0.003,
+    MIDDLE : 0.002,
+    FAST : 0.001,
+}
+
 # TEMP STATE
 TEMP = 'TEMP'
 SOFT = 'SOFT'
-HADR = 'HADR'
+HARD = 'HARD'
 POSTEX = 'POSTEX'
+HEAT_VALUE = {
+    SOFT : 30,
+    HARD : 40,
+    POSTEX : 35
+}
+
+t = 0
 
 # DEVICE NAME
 DOOR = 'DOOR'
 DEV = ['DEV1','DEV2','DEV3']
-MODE = ['HEAT']
-
-t = '0'
-
-# TEMP DATA SHEET - {dict}
-temp_sheet = {
-    SOFT : 50,
-    HADR : 80,
-    POSTEX : 90
-}
+MODE = ['HEAT_VALUE', 'SPIN_SPEED']
 
 # each category list to get index - used for funcs
 l_sector = [HMDS, SPIN, BAKE, DEVELOP, EXPOSURE, AUTO_STATE]
@@ -86,12 +93,13 @@ state_hmds = {
 state_spin = {
     DOOR : CLOSE,
     DEV[0] : OFF, #STEP MOTOR
+    MODE[1] : MIDDLE
 }
 # SECTOR 3 - BAKE FUNCS
 state_bake = {
     DOOR : CLOSE,
     MODE[0] : SOFT,
-    TEMP : t
+    TEMP : str(t)
 }
 
 # SECTOR 4 - DEVELOP FUNCS
@@ -119,10 +127,6 @@ state_auto = {
     AUTO : OFF,
 }
 
-run_auto = {
-    AUTO : { ON : auto_process_on, OFF : auto_process_off },
-}
-
 state_main = {
     AUTO_STATE : state_auto,
     HMDS : state_hmds,
@@ -132,31 +136,134 @@ state_main = {
     EXPOSURE : state_expo,
 }
 
+# ---------------------- 온도 데이터 갱신 ---------------------------- #
 def set_temperature(temp_C):
-<<<<<<< Updated upstream
-    t = temp_C
-    print("t : {t}")
-=======
     t = float(temp_C)
     print(f"t : {t}")
     if t >= HEAT_VALUE[state_bake[MODE[0]]] :
         gc.bake_heatpad_off()
     else :
         gc.bake_heatpad_on()
->>>>>>> Stashed changes
+    t = float(temp_C)
+    print("t : {t}")
+    if t >= HEAT_VALUE[state_bake[MODE[0]]] :
+        gc.bake_heatpad_off
+    else :
+        gc.bake_heatpad_on
 
 interval_s = 1
 
-# rt = RepeatedTimer(interval_s, gc.TempDataRead)
-# rt.function = set_temperature()
+rt = RepeatedTimer(interval_s, gc.TempDataRead)
+rt.function = set_temperature
+
 
 def activate_door(sect, state) :
     print(sect, "Door", state)
-    # sm.door_move(l_sector.index(sect), l_state_door.index(state))
+    sm.door_move(l_sector.index(sect), l_state_door.index(state))
 
 def activate_motor(sect, dev) :
     print(sect, dev, "activation")
-    # sr.put_data(sect=sect, dev=dev)
+    if sect == HMDS:
+        gc.auto_hmds()
+    elif sect == SPIN:
+        gc.auto_spin()
+    elif sect == DEVELOP:
+        if dev == DEV[0] :
+            gc.develop_pump1_work()
+        elif dev == DEV[1] :
+            gc.develop_pump2_work()
+        elif dev == DEV[2] :
+            gc.develop_fan_work()
+    elif sect == EXPOSURE:
+        gc.auto_exposure()
+    
+
+def activate_autoprocess(state):
+    print('Auto process', state)
+    state_bake[MODE[0]] = SOFT
+    # Wafer Stage out
+    sm.stage_out()
+    time.sleep(2)
+    # Robotarm Standby
+
+    # Wafer HMDS in
+    sm.hmds_in()
+    time.sleep(3)
+    # HMDS start
+    gc.auto_hmds()
+    time.sleep(3)
+    # HMDS end
+    sm.hmds_out()
+    time.sleep(2)
+
+    # Wafer SPIN COATING in
+    sm.spin_in()
+    time.sleep(3)
+    # SPIN COATING start
+    gc.auto_spin()
+    time.sleep(3)
+    # SPIN COATING end
+    sm.spin_out()
+    time.sleep(2)
+
+    # Wafer Soft BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = HARD
+    time.sleep(2)
+
+    # Wafer EXPOSURE in
+    sm.exposure_in()
+    time.sleep(3)
+    # EXPOSURE start
+    gc.auto_exposure()
+    time.sleep(3)
+    # EXPOSURE end
+    sm.exposure_out()
+    time.sleep(2)
+
+    # Wafer PostEx BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = SOFT
+    time.sleep(2)
+
+    # Wafer DEVELOP in
+    sm.develop_in()
+    time.sleep(3)
+    # DEVELOP start
+    gc.auto_develop()
+    time.sleep(3)
+    # DEVELOP end
+    sm.develop_out()
+    time.sleep(2)
+
+    # Wafer Hard BAKE in
+    sm.bake_in()
+    time.sleep(3)
+    # Hard BAKE start
+    time.sleep(10)
+    # Hard BAKE end
+    sm.bake_out()
+    state_bake[MODE[0]] = POSTEX
+    time.sleep(2)
+
+def change_setting(sect, state):
+    print(sect, 'value changes to', state)
+    if sect == SPIN:
+        gc.set_spinspeed(SPIN_SPEED[state])
+        pass
+    else :
+        gc.set_temp(HEAT_VALUE[state])
+        pass
 
 def run_device(sect, dev, state) :
     if dev == DOOR :
@@ -164,11 +271,14 @@ def run_device(sect, dev, state) :
     elif dev in DEV:
         activate_motor(sect, dev)
     elif dev in MODE:
-        pass
+        change_setting(sect, state)
+    elif dev == AUTO :
+        if state == ON :
+            activate_autoprocess(state)
 
 @app.route('/')
 def init_state() :
-    # rt.start()
+    rt.start()
     return state_main
 
 @app.route('/exit')

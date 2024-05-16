@@ -3,9 +3,8 @@ import glob
 import RPi.GPIO as GPIO
 
 # Motor driver PIN define
-STBY_PWM = 4 	    #HIGHT Input PIN for all STBY & PWMS
-PUMP_HMDS = 17      #Motor driver 1 - AIN1
-FAN_HMDS = 22       #Motor driver 1 - BIN1
+FAN_HMDS = 17       #Motor driver 1 - AIN1
+PUMP_SPIN = 22      #Motor driver 1 - BIN1
 PUMP1_DEVELOP = 19  #Motor driver 2 - AIN1
 PUMP2_DEVELOP = 26  #Motor driver 2 - BIN1
 
@@ -19,16 +18,17 @@ LIGHT_EX = 23       #RELAY module 4 - data
 EN = 12
 STEP = 20
 DIR = 21
+SPEED = 0.001
 
 # Thermal module PIN define
 THERMAL = 0
+TEMP_SET = 40
 
 GPIO.setwarnings(False)
 # GPIO PIN mode setting
 GPIO.setmode(GPIO.BCM)
 # Motor driver
-GPIO.setup(STBY_PWM, GPIO.OUT)
-GPIO.setup(PUMP_HMDS, GPIO.OUT)
+GPIO.setup(PUMP_SPIN, GPIO.OUT)
 GPIO.setup(FAN_HMDS, GPIO.OUT)
 GPIO.setup(PUMP1_DEVELOP, GPIO.OUT)
 GPIO.setup(PUMP2_DEVELOP, GPIO.OUT)
@@ -45,11 +45,10 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.setup(DIR, GPIO.OUT)
 
 # Thermal Module
-GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # All PIN reset
-GPIO.output(STBY_PWM, GPIO.LOW)
-GPIO.output(PUMP_HMDS, GPIO.LOW)
+GPIO.output(PUMP_SPIN, GPIO.LOW)
 GPIO.output(FAN_HMDS, GPIO.LOW)
 GPIO.output(PUMP1_DEVELOP, GPIO.LOW)
 GPIO.output(PUMP2_DEVELOP, GPIO.LOW)
@@ -57,61 +56,106 @@ GPIO.output(MCRW_HMDS, GPIO.LOW)
 GPIO.output(HEATPAD_BAKE, GPIO.LOW)
 GPIO.output(FAN_DEVLP, GPIO.LOW)
 GPIO.output(LIGHT_EX, GPIO.LOW)
-GPIO.output(EN, GPIO.LOW)
+GPIO.output(EN, GPIO.HIGH)
 GPIO.output(STEP, GPIO.LOW)
 GPIO.output(DIR, GPIO.LOW)
 
-# ------------ Motor driver function --------------- #
-def hmds_pump_work():
-	GPIO.output(PUMP_HMDS, GPIO.HIGH)
-	time.sleep(1)
-	GPIO.output(PUMP_HMDS, GPIO.LOW)
+def set_spinspeed(value):
+	SPEED = value
 
+def set_temp(value):
+	TEMP_SET = value
+
+# ------------ Motor driver function --------------- #
 def hmds_fan_work():
 	GPIO.output(FAN_HMDS, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(8)
 	GPIO.output(FAN_HMDS, GPIO.LOW)
+
+def spin_pump_work():
+	GPIO.output(PUMP_SPIN, GPIO.HIGH)
+	time.sleep(1.5)
+	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():
 	GPIO.output(PUMP1_DEVELOP, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(7)
 	GPIO.output(PUMP1_DEVELOP, GPIO.LOW)
 	
 def develop_pump2_work():
 	GPIO.output(PUMP2_DEVELOP, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(7)
 	GPIO.output(PUMP2_DEVELOP, GPIO.LOW)
 	
 # ------------ Relay module function --------------- #
 def hmds_vapor_work():
 	GPIO.output(MCRW_HMDS, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(10)
 	GPIO.output(MCRW_HMDS, GPIO.LOW)
 
-def bake_heatpad_work():
+def bake_heatpad_on():
 	GPIO.output(HEATPAD_BAKE, GPIO.HIGH)
-	time.sleep(2)
+
+def bake_heatpad_off():
 	GPIO.output(HEATPAD_BAKE, GPIO.LOW)
 
 def develop_fan_work():
 	GPIO.output(FAN_DEVLP, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(10)
 	GPIO.output(FAN_DEVLP, GPIO.LOW)
 
-def exposure_light_work():
+def exposure_light_on():
 	GPIO.output(LIGHT_EX, GPIO.HIGH)
-	time.sleep(2)
+
+def exposure_light_off():
 	GPIO.output(LIGHT_EX, GPIO.LOW)
 	
 # ------------ Relay module function --------------- #
 def spin_stepmotor_work():
+	GPIO.output(EN, GPIO.LOW)
+	for i in range(0,3000):
+		GPIO.output(STEP, GPIO.HIGH)
+		time.sleep(SPEED)
+		GPIO.output(STEP, GPIO.LOW)
+		time.sleep(SPEED)
+		if i > 400 :
+			SPEED = 0.002
+			print("current delay : ", SPEED)
+		if i > 1200 :
+			SPEED = 0.001
+			print("current delay : ", SPEED)
+		if i > 2400 :
+			SPEED = 0.003
+			print("current delay : ", SPEED)
+	GPIO.output(EN, GPIO.HIGH)
+
+# ------------ AUTO PROCESS function --------------- #
+def auto_hmds():
 	GPIO.output(MCRW_HMDS, GPIO.HIGH)
 	time.sleep(2)
+	GPIO.output(FAN_HMDS, GPIO.HIGH)
+	time.sleep(8)
 	GPIO.output(MCRW_HMDS, GPIO.LOW)
+	GPIO.output(FAN_HMDS, GPIO.LOW)
 
+def auto_spin():
+	spin_pump_work()
+	time.sleep(1)
+	spin_stepmotor_work()
+
+def auto_develop():
+	develop_pump1_work()
+	time.sleep(0.5)
+	develop_pump2_work()
+	time.sleep(1)
+	develop_fan_work()
+
+def auto_exposure():
+	exposure_light_on()
+	time.sleep(10)
+	exposure_light_off()
 
 # Thermal module directory
-"""
 base_dir = '/sys/bus/w1/devices/'
 
 while True:
@@ -121,6 +165,7 @@ while True:
 	except IndexError:
 		time.sleep(0.5)
 		continue
+
 device_file = device_folder + '/w1_slave'
 
 def TempFileRead():
@@ -139,37 +184,17 @@ def TempDataRead():
 		temp_string = lines[1][equals_pos + 2:]
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
-
-# =================== 로봇팔 동작 =====================
+	
+"""
 try:
-	hmds_vapor_work()
 	while True:
-		print('--------------------------------------')
-		print("Temp :", TempDataRead(), "'C")
+		temp_cur = TempDataRead()
+		print(temp_cur)
+		if temp_cur >= TEMP_SET :
+			bake_heatpad_off()
+		else :
+			bake_heatpad_on()
 		time.sleep(1)
 except KeyboardInterrupt :
-	GPIO.cleanup()
-
-# You can also specify the movement fractionally.
-"""
-"""
-class ServoFractionMove():
-	def init_motor(num):
-		pre_loc = 0.0
-		fraction = pre_loc
-		post_loc = 0.5
-		while fraction < post_loc:
-			armMotor[num].fraction = fraction
-			fraction += 0.01
-			time.sleep(0.03)
-		pre_loc = post_loc
-		
-	def servo_work(input_angle, num):
-		post_loc = 1.0 * ( input_angle / 180 )
-		fraction = pre_loc
-		while fraction < post_loc:
-			armMotor[num].fraction = fraction
-			fraction += 0.01
-			time.sleep(0.03)
-		pre_loc = post_loc
+	print("auto start")
 """
