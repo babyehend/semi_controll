@@ -306,7 +306,7 @@ class _PannelSpinState extends State<PannelSpin> {
                   Container(
                     height: 40,
                     padding: EdgeInsets.symmetric(
-                      horizontal: 10,
+                      horizontal: 5,
                     ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
