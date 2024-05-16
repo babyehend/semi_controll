@@ -139,21 +139,20 @@ state_main = {
     DEVELOP : state_develop,
     EXPOSURE : state_expo,
 }
-
-def set_temperature(temp_C):
-    t = temp_C
+"""
+def set_temperature():
+	#t = temp_C
     print("t : {t}")
     if t >= HEAT_VALUE[state_bake[MODE[0]]] :
         gc.bake_heatpad_off
     else :
         gc.bake_heatpad_on
 
-
 interval_s = 1
 
 rt = RepeatedTimer(interval_s, gc.TempDataRead)
 rt.function = set_temperature()
-
+"""
 def activate_door(sect, state) :
     print(sect, "Door", state)
     # sm.door_move(l_sector.index(sect), l_state_door.index(state))
@@ -266,7 +265,7 @@ def run_device(sect, dev, state) :
 
 @app.route('/')
 def init_state() :
-    rt.start()
+	#rt.start()
     return state_main
 
 @app.route('/exit')
@@ -291,3 +290,5 @@ def update_state():
 
 if __name__ == '__main__' :
     app.run(debug=True)
+
+activate_autoprocess("ON")
