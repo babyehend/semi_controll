@@ -133,8 +133,17 @@ state_main = {
 }
 
 def set_temperature(temp_C):
+<<<<<<< Updated upstream
     t = temp_C
     print("t : {t}")
+=======
+    t = float(temp_C)
+    print(f"t : {t}")
+    if t >= HEAT_VALUE[state_bake[MODE[0]]] :
+        gc.bake_heatpad_off()
+    else :
+        gc.bake_heatpad_on()
+>>>>>>> Stashed changes
 
 interval_s = 1
 
