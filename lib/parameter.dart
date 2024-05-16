@@ -110,11 +110,11 @@ class parameter with ChangeNotifier {
   );
 
   final TextStyle ctrlTextStyle = TextStyle(
-    fontSize: 18,
+    fontSize: 14,
     color: Colors.white70,
   );
 
   final TextStyle stateTextStyle = TextStyle(
-    fontSize: 18,
+    fontSize: 14,
   );
 }
