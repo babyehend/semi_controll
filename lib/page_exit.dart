@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:semi_controll/parameter.dart';
@@ -43,9 +42,7 @@ class _PageExitState extends State<PageExit> {
                   width: 300,
                   height: 80,
                   child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await Dio().get('http://127.0.0.1:5000/exit');
-
+                    onPressed: () {
                       setState(() {
                         exit(0);
                       });
