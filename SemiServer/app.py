@@ -141,6 +141,7 @@ def set_temperature():
     temp_c = gc.TempDataRead()
     t = float(temp_c)
     print(f"t : {t}")
+    state_main[BAKE][TEMP] = str(t)
     if t >= HEAT_VALUE[state_bake[MODE[0]]] :
         gc.bake_heatpad_off()
     else :
@@ -149,9 +150,6 @@ def set_temperature():
 interval_s = 1
 
 rt = RepeatedTimer(interval_s, set_temperature)
-
-rt.start()
-
 
 def activate_door(sect, state) :
     print(sect, "Door", state)
@@ -297,4 +295,5 @@ def update_state():
     return state_main
 
 if __name__ == '__main__' :
+    rt.start()
     app.run(debug=True)
