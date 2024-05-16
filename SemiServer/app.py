@@ -137,8 +137,8 @@ state_main = {
 }
 
 # ---------------------- 온도 데이터 갱신 ---------------------------- #
-def set_temperature(temp_C):
-    t = float(temp_C)
+def set_temperature(temp_c):
+    t = float(temp_c)
     print(f"t : {t}")
     if t >= HEAT_VALUE[state_bake[MODE[0]]] :
         gc.bake_heatpad_off()
