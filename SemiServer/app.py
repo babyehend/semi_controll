@@ -127,10 +127,6 @@ state_auto = {
     AUTO : OFF,
 }
 
-run_auto = {
-    AUTO : { ON : auto_process_on, OFF : auto_process_off },
-}
-
 state_main = {
     AUTO_STATE : state_auto,
     HMDS : state_hmds,
@@ -139,9 +135,10 @@ state_main = {
     DEVELOP : state_develop,
     EXPOSURE : state_expo,
 }
-"""
-def set_temperature():
-	#t = temp_C
+
+# ---------------------- 온도 데이터 갱신 ---------------------------- #
+def set_temperature(temp_C):
+    t = float(temp_C)
     print("t : {t}")
     if t >= HEAT_VALUE[state_bake[MODE[0]]] :
         gc.bake_heatpad_off
@@ -151,19 +148,29 @@ def set_temperature():
 interval_s = 1
 
 rt = RepeatedTimer(interval_s, gc.TempDataRead)
-rt.function = set_temperature()
-"""
+rt.function = set_temperature
+
+
 def activate_door(sect, state) :
     print(sect, "Door", state)
-    # sm.door_move(l_sector.index(sect), l_state_door.index(state))
+    sm.door_move(l_sector.index(sect), l_state_door.index(state))
 
 def activate_motor(sect, dev) :
     print(sect, dev, "activation")
     if sect == HMDS:
+        gc.auto_hmds()
+    elif sect == SPIN:
+        gc.auto_spin()
+    elif sect == DEVELOP:
         if dev == DEV[0] :
-            gc.hmds_fan_work()
+            gc.develop_pump1_work()
         elif dev == DEV[1] :
-            gc.hmds_vapor_work()
+            gc.develop_pump2_work()
+        elif dev == DEV[2] :
+            gc.develop_fan_work()
+    elif sect == EXPOSURE:
+        gc.auto_exposure()
+    
 
 def activate_autoprocess(state):
     print('Auto process', state)
@@ -265,7 +272,7 @@ def run_device(sect, dev, state) :
 
 @app.route('/')
 def init_state() :
-	#rt.start()
+    rt.start()
     return state_main
 
 @app.route('/exit')
@@ -290,5 +297,3 @@ def update_state():
 
 if __name__ == '__main__' :
     app.run(debug=True)
-
-activate_autoprocess("ON")

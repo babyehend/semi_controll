@@ -74,17 +74,17 @@ def hmds_fan_work():
 
 def spin_pump_work():
 	GPIO.output(PUMP_SPIN, GPIO.HIGH)
-	time.sleep(2)
+	time.sleep(1.5)
 	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():
 	GPIO.output(PUMP1_DEVELOP, GPIO.HIGH)
-	time.sleep(10)
+	time.sleep(7)
 	GPIO.output(PUMP1_DEVELOP, GPIO.LOW)
 	
 def develop_pump2_work():
 	GPIO.output(PUMP2_DEVELOP, GPIO.HIGH)
-	time.sleep(10)
+	time.sleep(7)
 	GPIO.output(PUMP2_DEVELOP, GPIO.LOW)
 	
 # ------------ Relay module function --------------- #
@@ -118,6 +118,15 @@ def spin_stepmotor_work():
 		time.sleep(SPEED)
 		GPIO.output(STEP, GPIO.LOW)
 		time.sleep(SPEED)
+		if i > 400 :
+			SPEED = 0.002
+			print("current delay : ", SPEED)
+		if i > 1200 :
+			SPEED = 0.001
+			print("current delay : ", SPEED)
+		if i > 2400 :
+			SPEED = 0.003
+			print("current delay : ", SPEED)
 	GPIO.output(EN, GPIO.HIGH)
 
 # ------------ AUTO PROCESS function --------------- #
