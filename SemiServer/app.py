@@ -10,11 +10,11 @@ api = Api(app)
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
-        self._timer     = None
-        self.interval   = interval
-        self.function   = function
-        self.args       = args
-        self.kwargs     = kwargs
+        self._timer = None
+        self.interval = interval
+        self.function  = function
+        self.args = args
+        self.kwargs = kwargs
         self.is_running = False
         self.start()
 
@@ -137,7 +137,8 @@ state_main = {
 }
 
 # ---------------------- 온도 데이터 갱신 ---------------------------- #
-def set_temperature(temp_c):
+def set_temperature():
+    temp_c = gc.TempDataRead()
     t = float(temp_c)
     print(f"t : {t}")
     if t >= HEAT_VALUE[state_bake[MODE[0]]] :
@@ -147,8 +148,7 @@ def set_temperature(temp_c):
 
 interval_s = 1
 
-rt = RepeatedTimer(interval_s, gc.TempDataRead)
-rt.function = set_temperature
+rt = RepeatedTimer(interval_s, set_temperature)
 
 rt.start()
 
