@@ -74,7 +74,7 @@ def hmds_fan_work():
 
 def spin_pump_work():
 	GPIO.output(PUMP_SPIN, GPIO.HIGH)
-	time.sleep(1.5)
+	time.sleep(1)
 	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():
@@ -115,18 +115,9 @@ def spin_stepmotor_work():
 	GPIO.output(EN, GPIO.LOW)
 	for i in range(0,3000):
 		GPIO.output(STEP, GPIO.HIGH)
-		time.sleep(SPEED)
+		time.sleep(0.001)
 		GPIO.output(STEP, GPIO.LOW)
-		time.sleep(SPEED)
-		if i > 400 :
-			SPEED = 0.002
-			print("current delay : ", SPEED)
-		if i > 1200 :
-			SPEED = 0.001
-			print("current delay : ", SPEED)
-		if i > 2400 :
-			SPEED = 0.003
-			print("current delay : ", SPEED)
+		time.sleep(0.001)
 	GPIO.output(EN, GPIO.HIGH)
 
 # ------------ AUTO PROCESS function --------------- #

@@ -73,23 +73,27 @@ def servo_work(start_angle, end_angle, num):
 			fraction -= 2
 			time.sleep(0.1)
 
-# fraction
-
+# door move function
 def door_move(loc, state) :
     i = loc
     print(loc, i)
-    print('Hello')
     if state:
-        print('World')
-        doorMotor[i].angle = 150
-        time.sleep(3)
-    else :
-        print('Morld')
         doorMotor[i].angle = 60
-        time.sleep(3)
+        time.sleep(4)
+    else :
+        doorMotor[i].angle = 150
+        time.sleep(4)
 
-    print('ByeBye')
     doorMotor[i].angle = 90
+
+def spin_door_move(state):
+	if state:
+		doorMotor[1].angle = 150
+	else :
+		doorMotor[1].angle = 60
+
+	time.sleep(2)
+	doorMotor[1].angle = 90
 
 # ------------------------ 로봇팔 단계별 동작 함수 ----------------------------
 # pass 를 지우고 그 자리에 해당 동작에 대한 함수를 붙여 넣는다.
