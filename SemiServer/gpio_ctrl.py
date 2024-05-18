@@ -4,20 +4,20 @@ import RPi.GPIO as GPIO
 
 # Motor driver PIN define
 FAN_HMDS = 17       #Motor driver 1 - AIN1
-PUMP_SPIN = 22      #Motor driver 1 - BIN1
+PUMP_SPIN = 27      #Motor driver 1 - BIN1
 PUMP1_DEVELOP = 19  #Motor driver 2 - AIN1
 PUMP2_DEVELOP = 26  #Motor driver 2 - BIN1
 
 # Relay module PIN define
-MCRW_HMDS = 14      #RELAY module 1 - data
+MCRW_HMDS = 22      #RELAY module 1 - data
 HEATPAD_BAKE = 15   #RELAY module 2 - data
 FAN_DEVLP = 18      #RELAY module 3 - data
 LIGHT_EX = 23       #RELAY module 4 - data
 
 # Step motor driver PIN define
-EN = 12
-STEP = 20
-DIR = 21
+EN = 10
+STEP = 9
+DIR = 11
 SPEED = 0.001
 
 # Thermal module PIN define
@@ -148,7 +148,7 @@ def auto_exposure():
 
 # Thermal module directory
 base_dir = '/sys/bus/w1/devices/'
-
+"""
 while True:
 	try:
 		device_folder = glob.glob(base_dir + '28*')[0]
@@ -175,7 +175,9 @@ def TempDataRead():
 		temp_string = lines[1][equals_pos + 2:]
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
-	
+"""
+auto_hmds()
+auto_spin()
 """
 try:
 	while True:
