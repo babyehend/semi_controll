@@ -142,7 +142,7 @@ def set_temperature():
     t = float(temp_c)
     print(f"t : {t}")
     state_main[BAKE][TEMP] = str(t)
-    if t >= HEAT_VALUE[state_bake[MODE[0]]] :
+    if t >= HEAT_VALUE[state_main[BAKE][MODE[0]]] :
         gc.bake_heatpad_off()
     else :
         gc.bake_heatpad_on()
@@ -152,8 +152,12 @@ interval_s = 1
 rt = RepeatedTimer(interval_s, set_temperature)
 
 def activate_door(sect, state) :
-    print(sect, "Door", state)
-    sm.door_move(l_sector.index(sect), l_state_door.index(state))
+    i = l_sector.index(sect)
+    j = l_state_door.index(state)
+    if i == 1:
+        sm.spin_door_move(l_state_door.index(state))
+    else :
+        sm.door_move(l_sector.index(sect), l_state_door.index(state))
 
 def activate_motor(sect, dev) :
     print(sect, dev, "activation")
@@ -183,28 +187,38 @@ def activate_autoprocess(state):
     # Wafer HMDS in
     sm.hmds_in()
     time.sleep(3)
+
+    sm.door_move(0,0)
+
     # HMDS start
     gc.auto_hmds()
     time.sleep(3)
     # HMDS end
+    sm.door_move(0,1)
+
     sm.hmds_out()
     time.sleep(2)
 
+    """
     # Wafer SPIN COATING in
     sm.spin_in()
     time.sleep(3)
     # SPIN COATING start
+    sm.spin_door_move(0)
     gc.auto_spin()
     time.sleep(3)
     # SPIN COATING end
+    sm.spin_door_move(1)
     sm.spin_out()
     time.sleep(2)
 
     # Wafer Soft BAKE in
     sm.bake_in()
     time.sleep(3)
+    sm.door_move(2,0)
     # Hard BAKE start
     time.sleep(10)
+    sm.door_move(2,1)
     # Hard BAKE end
     sm.bake_out()
     state_bake[MODE[0]] = HARD
@@ -213,9 +227,11 @@ def activate_autoprocess(state):
     # Wafer EXPOSURE in
     sm.exposure_in()
     time.sleep(3)
+    sm.door_move(4,0)
     # EXPOSURE start
     gc.auto_exposure()
     time.sleep(3)
+    sm.door_move(4,1)
     # EXPOSURE end
     sm.exposure_out()
     time.sleep(2)
@@ -223,8 +239,10 @@ def activate_autoprocess(state):
     # Wafer PostEx BAKE in
     sm.bake_in()
     time.sleep(3)
+    sm.door_move(2,0)
     # Hard BAKE start
     time.sleep(10)
+    sm.door_move(2,1)
     # Hard BAKE end
     sm.bake_out()
     state_bake[MODE[0]] = SOFT
@@ -233,9 +251,11 @@ def activate_autoprocess(state):
     # Wafer DEVELOP in
     sm.develop_in()
     time.sleep(3)
+    sm.door_move(3,0)
     # DEVELOP start
     gc.auto_develop()
     time.sleep(3)
+    sm.door_move(3,1)
     # DEVELOP end
     sm.develop_out()
     time.sleep(2)
@@ -243,12 +263,15 @@ def activate_autoprocess(state):
     # Wafer Hard BAKE in
     sm.bake_in()
     time.sleep(3)
+    sm.door_move(2,0)
     # Hard BAKE start
     time.sleep(10)
+    sm.door_move(2,1)
     # Hard BAKE end
     sm.bake_out()
     state_bake[MODE[0]] = POSTEX
     time.sleep(2)
+    """
 
 def change_setting(sect, state):
     print(sect, 'value changes to', state)
