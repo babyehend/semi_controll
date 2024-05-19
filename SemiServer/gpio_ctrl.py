@@ -148,7 +148,7 @@ def auto_exposure():
 
 # Thermal module directory
 base_dir = '/sys/bus/w1/devices/'
-"""
+
 while True:
 	try:
 		device_folder = glob.glob(base_dir + '28*')[0]
@@ -175,20 +175,15 @@ def TempDataRead():
 		temp_string = lines[1][equals_pos + 2:]
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
-"""
 
-auto_develop()
-
-"""
-try:
-	while True:
-		temp_cur = TempDataRead()
-		print(temp_cur)
-		if temp_cur >= TEMP_SET :
-			bake_heatpad_off()
-		else :
-			bake_heatpad_on()
-		time.sleep(1)
-except KeyboardInterrupt :
-	print("auto start")
-"""
+# try:
+# 	while True:
+# 		temp_cur = TempDataRead()
+# 		print(temp_cur)
+# 		if temp_cur >= TEMP_SET :
+# 			bake_heatpad_off()
+# 		else :
+# 			bake_heatpad_on()
+# 		time.sleep(1)
+# except KeyboardInterrupt :
+# 	print("auto start")

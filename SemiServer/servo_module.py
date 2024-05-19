@@ -33,7 +33,9 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 # -90 ~ 90 / 0 = 정지 / 1 ~ 90 = 정방향 회전 / -90 ~ -1 = 역방향 회전
 # 총 5개의 설비, 5개의 객체 / 0 : HMDS, 1 : SPIN, 2 : BAKE, 3 : DEVELOP, 4 : EXPOSURE
 
-
+global armMotor
+global armMotor1
+global doorMotor
 
 # 로봇팔 초기 구동 함수
 # 기본적인 위상으로 초기화
@@ -45,9 +47,6 @@ def arm_init():
 	# 인자값을 추가로 주어 클럭 속도를 임의로 설정 가능
 	pca.frequency = 50
 	# pca 모듈의 주파수 설정
-	global armMotor
-	global armMotor1
-	global doorMotor
 	armMotor = [servo.Servo(pca.channels[i], min_pulse=544, max_pulse=2400) for i in range(0,7)]
 	armMotor1 = [servo.Servo(pca.channels[i], min_pulse=415, max_pulse=2430) for i in range(0,6)]
 	doorMotor = [servo.Servo(pca.channels[i+10], min_pulse=500, max_pulse=2600) for i in range(0,5)]
