@@ -5,14 +5,14 @@ import RPi.GPIO as GPIO
 # Motor driver PIN define
 FAN_HMDS = 17       #Motor driver 1 - AIN1
 PUMP_SPIN = 27      #Motor driver 1 - BIN1
-PUMP1_DEVELOP = 19  #Motor driver 2 - AIN1
-PUMP2_DEVELOP = 26  #Motor driver 2 - BIN1
+PUMP1_DEVELOP = 14  #Motor driver 2 - AIN1
+PUMP2_DEVELOP = 15  #Motor driver 2 - BIN1
 
 # Relay module PIN define
 MCRW_HMDS = 22      #RELAY module 1 - data
-HEATPAD_BAKE = 15   #RELAY module 2 - data
+HEATPAD_BAKE = 20   #RELAY module 2 - data
 FAN_DEVLP = 18      #RELAY module 3 - data
-LIGHT_EX = 23       #RELAY module 4 - data
+LIGHT_EX = 21       #RELAY module 4 - data
 
 # Step motor driver PIN define
 EN = 10
@@ -176,8 +176,9 @@ def TempDataRead():
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
 """
-auto_hmds()
-auto_spin()
+
+auto_develop()
+
 """
 try:
 	while True:

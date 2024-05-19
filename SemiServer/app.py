@@ -292,6 +292,8 @@ def run_device(sect, dev, state) :
     elif dev == AUTO :
         if state == ON :
             activate_autoprocess(state)
+        else :
+            sm.arm_deinit()
 
 @app.route('/')
 def init_state() :
