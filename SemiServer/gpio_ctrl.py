@@ -1,7 +1,9 @@
+# 파이썬의 GPIO 입출력 제어를 통한 회로 동작을 구현한 파일
 import time
 import glob
 import RPi.GPIO as GPIO
 
+# 각 장치들이 연결되어 입출력을 제어할 핀 설정
 # Motor driver PIN define
 FAN_HMDS = 17       #Motor driver 1 - AIN1
 PUMP_SPIN = 27      #Motor driver 1 - BIN1
@@ -24,7 +26,8 @@ SPEED = 0.001
 THERMAL = 0
 TEMP_SET = 40
 
-GPIO.setwarnings(False)
+# GPIO 핀 설정
+GPIO.setwarnings(False) # 파일이 실행될때마다 출력되는 setup 오류를 없애는 설정
 # GPIO PIN mode setting
 GPIO.setmode(GPIO.BCM)
 # Motor driver
@@ -45,7 +48,8 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.setup(DIR, GPIO.OUT)
 
 # Thermal Module
-#GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# 온도 센서는 값을 읽어와야 하기 때문에, 입력으로 설정.
+GPIO.setup(THERMAL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # All PIN reset
 GPIO.output(PUMP_SPIN, GPIO.LOW)
@@ -146,25 +150,29 @@ def auto_exposure():
 	time.sleep(10)
 	exposure_light_off()
 
+# 온도센서와 1-wire 통신 연결
 # Thermal module directory
 base_dir = '/sys/bus/w1/devices/'
 
 while True:
 	try:
-		device_folder = glob.glob(base_dir + '28*')[0]
+		device_folder = glob.glob(base_dir + '28*')[0] # 온도센서 모듈을 찾아서 저장
 		break
 	except IndexError:
 		time.sleep(0.5)
 		continue
 
+# 입력된 데이터가 저장되는 파일 경로 저장
 device_file = device_folder + '/w1_slave'
 
+# 저장된 데이터 파일에서 온도값을 추출하는 함수
 def TempFileRead():
 	f = open(device_file, 'r')
 	lines = f.readlines()
 	f.close()
 	return lines
 
+# 추출된 온도값을 실수형 데이터로 변환 하여 반환 하는 함수
 def TempDataRead():
 	lines = TempFileRead()
 	while lines[0].strip()[-3:] != 'YES' :
@@ -175,15 +183,3 @@ def TempDataRead():
 		temp_string = lines[1][equals_pos + 2:]
 		temp_c = float(temp_string) / 1000.0
 		return temp_c
-
-# try:
-# 	while True:
-# 		temp_cur = TempDataRead()
-# 		print(temp_cur)
-# 		if temp_cur >= TEMP_SET :
-# 			bake_heatpad_off()
-# 		else :
-# 			bake_heatpad_on()
-# 		time.sleep(1)
-# except KeyboardInterrupt :
-# 	print("auto start")

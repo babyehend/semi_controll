@@ -1,3 +1,5 @@
+# 설비의 문과 로봇팔에 장착된 서보모터들을 
+# pca9685 서보 모터 모듈을 통해 제어 하기 위한 파일
 import time
 import board
 from adafruit_motor import servo		#adafruit servo controll lib
@@ -26,13 +28,14 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 # 집게 위상 모터 - 위상 특성상 수직 또는 수평만을 사용할 확률이 높아 특정해놓음
 #armMotor 5 - FASTEN = 120, LOOSEN = 40
 # 집게 모터 - 지나치게 높은 값은집게 구조 특성상 모터에 무리를 줌
-
-
 # dootMotor - 설비의 문을 제어하는 서보모터가 연결되어있는 객체
 #  - mg995 servo motor : 360 도 회전이 가능한 서보모터
 # -90 ~ 90 / 0 = 정지 / 1 ~ 90 = 정방향 회전 / -90 ~ -1 = 역방향 회전
 # 총 5개의 설비, 5개의 객체 / 0 : HMDS, 1 : SPIN, 2 : BAKE, 3 : DEVELOP, 4 : EXPOSURE
 
+# 메일 서버 파일에서 자동 공정의 시작과 중단을 제어하기 위해 
+# 서보모터 제어 객체를 전역 변수로 설정
+# - 로봇팔 제어 중단시 객체데이터를 초기화 시키는 pca9685 라이브러리의 deinit()을 사용
 global armMotor
 global armMotor1
 global doorMotor
@@ -65,9 +68,9 @@ def arm_init():
 	armMotor[6].angle = 100
 	time.sleep(0.2)
 
+# 객체의 할당을 초기화하는 reset 함수를 호출 하는 deinit()
 def arm_deinit() :
 	pca.deinit()
-
 
 # 로봇팔 자동 제어 1단계 : 웨이퍼 스테이지
 def servo_work(start_angle, end_angle, num):
