@@ -10,9 +10,9 @@ PUMP2_DEVELOP = 15  #Motor driver 2 - BIN1
 
 # Relay module PIN define
 MCRW_HMDS = 22      #RELAY module 1 - data
-HEATPAD_BAKE = 20   #RELAY module 2 - data
+HEATPAD_BAKE = 21   #RELAY module 2 - data
 FAN_DEVLP = 18      #RELAY module 3 - data
-LIGHT_EX = 21       #RELAY module 4 - data
+LIGHT_EX = 20       #RELAY module 4 - data
 
 # Step motor driver PIN define
 EN = 10
@@ -74,7 +74,7 @@ def hmds_fan_work():
 
 def spin_pump_work():
 	GPIO.output(PUMP_SPIN, GPIO.HIGH)
-	time.sleep(1)
+	time.sleep(1.5)
 	GPIO.output(PUMP_SPIN, GPIO.LOW)
 
 def develop_pump1_work():

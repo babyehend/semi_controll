@@ -167,11 +167,11 @@ def activate_motor(sect, dev) :
         gc.auto_spin()
     elif sect == DEVELOP:
         if dev == DEV[0] :
-            gc.develop_pump1_work()
-        elif dev == DEV[1] :
-            gc.develop_pump2_work()
-        elif dev == DEV[2] :
             gc.develop_fan_work()
+        elif dev == DEV[1] :
+            gc.develop_pump1_work()
+        elif dev == DEV[2] :
+            gc.develop_pump2_work()
     elif sect == EXPOSURE:
         gc.auto_exposure()
     
